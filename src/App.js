@@ -1,8 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, DollarSign, Car, TrendingUp, Users, MapPin } from 'lucide-react';
-import StatCard from './components/StatCard';
-import SalesChart from './components/SalesChart';
-import CarsOverview from './components/CarsOverview';
+import { Calendar, DollarSign, Car, TrendingUp, Users, MapPin, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
+import Sidebar from './components/Sidebar';
+import DashboardPage from './pages/DashboardPage';
+import CarControlsPage from './pages/CarControlsPage';
+import FleetManagementPage from './pages/FleetManagementPage';
+import BookingsPage from './pages/BookingsPage';
+import CustomersPage from './pages/CustomersPage';
+import AnalyticsPage from './pages/AnalyticsPage';
+import PaymentsPage from './pages/PaymentsPage';
+import NotificationsPage from './pages/NotificationsPage';
+import SettingsPage from './pages/SettingsPage';
 
 // Mock data - replace with real API calls
 const generateMockData = () => {
@@ -43,13 +50,25 @@ const generateMockData = () => {
     locations: {
       active: 8,
       total: 10
+    },
+    users: {
+      newUsersToday: 15,
+      newUsersYesterday: 12,
+      totalUsers: 1247,
+      bookingsToday: 23,
+      bookingsYesterday: 19,
+      totalBookings: 3456,
+      activeUsers: 892
     }
   };
 };
 
+
+
 function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState('dashboard');
 
   useEffect(() => {
     // Simulate API call
@@ -68,6 +87,40 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'dashboard':
+        return <DashboardPage data={data} />;
+      case 'car-controls':
+        return <CarControlsPage />;
+      case 'fleet-management':
+        return <FleetManagementPage />;
+      case 'bookings':
+        return <BookingsPage />;
+      case 'customers':
+        return <CustomersPage />;
+      case 'analytics':
+        return <AnalyticsPage />;
+      case 'payments':
+        return <PaymentsPage />;
+      case 'notifications':
+        return <NotificationsPage />;
+      case 'settings':
+        return <SettingsPage />;
+      default:
+        return (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                {activeSection.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+              </h3>
+              <p className="text-gray-500">This section is under development.</p>
+            </div>
+          </div>
+        );
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -80,169 +133,59 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-6">
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">LezGo Dashboard</h1>
-              <p className="text-sm text-gray-600 mt-1">Car Rental Management System</p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="text-right">
-                <p className="text-sm font-medium text-gray-900">
-                  {new Date().toLocaleDateString('en-US', { 
-                    weekday: 'long', 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar */}
+      <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
+      
+      {/* Main Content */}
+      <div className="flex-1 ml-64">
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
+          <div className="px-6 py-4">
+            <div className="flex justify-between items-center">
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  {activeSection === 'dashboard' ? 'Dashboard Overview' : 
+                   activeSection.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                </h1>
+                <p className="text-sm text-gray-600 mt-1">
+                  {activeSection === 'dashboard' ? 'Car Rental Management System' : 
+                   `Manage your ${activeSection.replace('-', ' ')}`}
                 </p>
-                <p className="text-xs text-gray-500">
-                  Last updated: {new Date().toLocaleTimeString()}
-                </p>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-gray-900">
+                    {new Date().toLocaleDateString('en-US', { 
+                      weekday: 'long', 
+                      year: 'numeric', 
+                      month: 'long', 
+                      day: 'numeric' 
+                    })}
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    Last updated: {new Date().toLocaleTimeString()}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard
-            title="Today's Rides"
-            value={data.rides.today}
-            previousValue={data.rides.yesterday}
-            icon={Car}
-            trend={true}
-            color="blue"
-          />
-          <StatCard
-            title="Yesterday's Rides"
-            value={data.rides.yesterday}
-            icon={Calendar}
-            color="gray"
-          />
-          <StatCard
-            title="Today's Earnings"
-            value={`$${data.earnings.today.toLocaleString()}`}
-            previousValue={data.earnings.yesterday}
-            icon={DollarSign}
-            trend={true}
-            color="green"
-          />
-          <StatCard
-            title="Yesterday's Earnings"
-            value={`$${data.earnings.yesterday.toLocaleString()}`}
-            icon={TrendingUp}
-            color="purple"
-          />
-        </div>
+        {/* Page Content */}
+        <main className="p-6">
+          {renderContent()}
+        </main>
 
-        {/* Secondary Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <StatCard
-            title="Today's Customers"
-            value={data.customers.today}
-            previousValue={data.customers.yesterday}
-            icon={Users}
-            trend={true}
-            color="orange"
-          />
-          <StatCard
-            title="Active Locations"
-            value={`${data.locations.active}/${data.locations.total}`}
-            icon={MapPin}
-            color="red"
-          />
-          <StatCard
-            title="Fleet Utilization"
-            value={`${Math.round((data.cars.rented / data.cars.total) * 100)}%`}
-            icon={Car}
-            color="blue"
-          />
-          <StatCard
-            title="Average per Ride"
-            value={`$${Math.round(data.earnings.today / data.rides.today)}`}
-            icon={DollarSign}
-            color="green"
-          />
-        </div>
-
-        {/* Charts and Fleet Overview */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
-          {/* Sales Chart */}
-          <div className="lg:col-span-2">
-            <SalesChart 
-              data={data.salesData} 
-              title="Sales Comparison (Today vs Yesterday)"
-              type="line"
-            />
-          </div>
-          
-          {/* Cars Overview */}
-          <div>
-            <CarsOverview carsData={data.cars} />
-          </div>
-        </div>
-
-        {/* Additional Chart */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <SalesChart 
-            data={data.salesData.filter((_, index) => index % 2 === 0)} 
-            title="Hourly Revenue Distribution"
-            type="bar"
-          />
-          
-          {/* Quick Actions */}
-          <div className="chart-container">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-            <div className="space-y-3">
-              <button className="w-full text-left p-4 rounded-lg border border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-colors group">
-                <div className="flex items-center">
-                  <Car className="text-blue-600 mr-3 group-hover:scale-110 transition-transform" size={20} />
-                  <div>
-                    <p className="font-medium text-gray-900">Add New Booking</p>
-                    <p className="text-sm text-gray-500">Create a new car rental booking</p>
-                  </div>
-                </div>
-              </button>
-              
-              <button className="w-full text-left p-4 rounded-lg border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-colors group">
-                <div className="flex items-center">
-                  <Users className="text-green-600 mr-3 group-hover:scale-110 transition-transform" size={20} />
-                  <div>
-                    <p className="font-medium text-gray-900">Manage Customers</p>
-                    <p className="text-sm text-gray-500">View and edit customer information</p>
-                  </div>
-                </div>
-              </button>
-              
-              <button className="w-full text-left p-4 rounded-lg border border-gray-200 hover:border-purple-300 hover:bg-purple-50 transition-colors group">
-                <div className="flex items-center">
-                  <TrendingUp className="text-purple-600 mr-3 group-hover:scale-110 transition-transform" size={20} />
-                  <div>
-                    <p className="font-medium text-gray-900">View Reports</p>
-                    <p className="text-sm text-gray-500">Generate detailed analytics reports</p>
-                  </div>
-                </div>
-              </button>
+        {/* Footer */}
+        <footer className="bg-white border-t border-gray-200 mt-12">
+          <div className="px-6 py-4">
+            <div className="text-center text-sm text-gray-500">
+              <p>&copy; 2024 LezGo Car Rental. All rights reserved.</p>
             </div>
           </div>
-        </div>
-      </main>
-
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="text-center text-sm text-gray-500">
-            <p>&copy; 2024 LezGo Car Rental. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   );
 }
