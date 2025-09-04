@@ -10,7 +10,7 @@ const DashboardPage = ({ data }) => {
   return (
     <div className="space-y-8">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatCard
           title="Today's Rides"
           value={data.rides.today}
@@ -42,7 +42,7 @@ const DashboardPage = ({ data }) => {
       </div>
 
       {/* Secondary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         <StatCard
           title="New Users Today"
           value={data.users.newUsersToday}
@@ -74,13 +74,14 @@ const DashboardPage = ({ data }) => {
       </div>
 
       {/* Sales Chart and Fleet Map Side by Side */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Sales Chart */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+        {/* Rides Chart */}
         <div>
           <SalesChart 
-            data={data.salesData} 
-            title="Sales Comparison (Today vs Yesterday)"
+            data={data.ridesData} 
+            title="Rides Comparison (Today vs Yesterday)"
             type="line"
+            dataType="rides"
           />
         </div>
         
@@ -91,7 +92,7 @@ const DashboardPage = ({ data }) => {
       </div>
 
       {/* Fleet Overview and User Analytics */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         {/* Cars Overview */}
         <div>
           <CarsOverview carsData={data.cars} />
@@ -113,7 +114,7 @@ const DashboardPage = ({ data }) => {
       </div>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
         {/* Fleet Status Overview */}
         <div className="chart-container">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Fleet Status Summary</h3>

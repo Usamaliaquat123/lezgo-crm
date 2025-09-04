@@ -1,7 +1,7 @@
 import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
-const SalesChart = ({ data, type = 'line', title }) => {
+const SalesChart = ({ data, type = 'line', title, dataType = 'sales' }) => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
@@ -9,7 +9,10 @@ const SalesChart = ({ data, type = 'line', title }) => {
           <p className="text-sm font-medium text-gray-900">{`${label}`}</p>
           {payload.map((entry, index) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
-              {`${entry.dataKey}: $${entry.value?.toLocaleString()}`}
+              {dataType === 'rides' 
+                ? `${entry.dataKey}: ${entry.value} rides`
+                : `${entry.dataKey}: $${entry.value?.toLocaleString()}`
+              }
             </p>
           ))}
         </div>
@@ -38,7 +41,7 @@ const SalesChart = ({ data, type = 'line', title }) => {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `$${value}`}
+                tickFormatter={(value) => dataType === 'rides' ? `${value}` : `$${value}`}
               />
               <Tooltip content={<CustomTooltip />} />
               <Line 
@@ -73,7 +76,7 @@ const SalesChart = ({ data, type = 'line', title }) => {
                 fontSize={12}
                 tickLine={false}
                 axisLine={false}
-                tickFormatter={(value) => `$${value}`}
+                tickFormatter={(value) => dataType === 'rides' ? `${value}` : `$${value}`}
               />
               <Tooltip content={<CustomTooltip />} />
               <Bar dataKey="today" fill="#3b82f6" radius={[4, 4, 0, 0]} />

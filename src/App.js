@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, DollarSign, Car, TrendingUp, Users, MapPin, CheckCircle, Clock, AlertTriangle } from 'lucide-react';
+import { Calendar, DollarSign, Car, TrendingUp, Users, MapPin, CheckCircle, Clock, AlertTriangle, Menu } from 'lucide-react';
 import Sidebar from './components/Sidebar';
 import DashboardPage from './pages/DashboardPage';
 import CarControlsPage from './pages/CarControlsPage';
@@ -9,6 +9,7 @@ import CustomersPage from './pages/CustomersPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import PaymentsPage from './pages/PaymentsPage';
 import NotificationsPage from './pages/NotificationsPage';
+import ParkingProofsPage from './pages/ParkingProofsPage';
 import SettingsPage from './pages/SettingsPage';
 
 // Mock data - replace with real API calls
@@ -24,6 +25,16 @@ const generateMockData = () => {
       time: `${i.toString().padStart(2, '0')}:00`,
       today: Math.floor(Math.random() * 1000) + 200,
       yesterday: Math.floor(Math.random() * 800) + 150,
+    });
+  }
+
+  // Generate hourly rides data
+  const ridesData = [];
+  for (let i = 0; i < 24; i++) {
+    ridesData.push({
+      time: `${i.toString().padStart(2, '0')}:00`,
+      today: Math.floor(Math.random() * 8) + 1, // 1-8 rides per hour
+      yesterday: Math.floor(Math.random() * 6) + 1, // 1-6 rides per hour
     });
   }
 
@@ -43,6 +54,7 @@ const generateMockData = () => {
       maintenance: 2
     },
     salesData,
+    ridesData,
     customers: {
       today: 23,
       yesterday: 19
@@ -59,7 +71,8 @@ const generateMockData = () => {
       bookingsYesterday: 19,
       totalBookings: 3456,
       activeUsers: 892
-    }
+    },
+    pendingProofsCount: Math.floor(Math.random() * 8) + 1 // 1-8 pending proofs
   };
 };
 
@@ -69,6 +82,7 @@ function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState('dashboard');
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   useEffect(() => {
     // Simulate API call
@@ -83,8 +97,8 @@ function App() {
     fetchData();
     
     // Update data every 30 seconds
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
+    // const interval = setInterval(fetchData, 30000);
+    // return () => clearInterval(interval);
   }, []);
 
   const renderContent = () => {
@@ -97,6 +111,8 @@ function App() {
         return <FleetManagementPage />;
       case 'bookings':
         return <BookingsPage />;
+      case 'parking-proofs':
+        return <ParkingProofsPage />;
       case 'customers':
         return <CustomersPage />;
       case 'analytics':
@@ -135,26 +151,42 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <Sidebar activeSection={activeSection} setActiveSection={setActiveSection} />
+      <Sidebar 
+        activeSection={activeSection} 
+        setActiveSection={setActiveSection}
+        isMobileOpen={isMobileOpen}
+        setIsMobileOpen={setIsMobileOpen}
+        pendingProofsCount={data?.pendingProofsCount || 0}
+      />
       
       {/* Main Content */}
-      <div className="flex-1 ml-64">
+      <div className="flex-1 lg:ml-64">
         {/* Header */}
         <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-          <div className="px-6 py-4">
+          <div className="px-4 sm:px-6 py-4">
             <div className="flex justify-between items-center">
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {activeSection === 'dashboard' ? 'Dashboard Overview' : 
-                   activeSection.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                </h1>
-                <p className="text-sm text-gray-600 mt-1">
-                  {activeSection === 'dashboard' ? 'Car Rental Management System' : 
-                   `Manage your ${activeSection.replace('-', ' ')}`}
-                </p>
+              <div className="flex items-center space-x-4">
+                {/* Mobile Menu Button */}
+                <button
+                  className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                  onClick={() => setIsMobileOpen(true)}
+                >
+                  <Menu size={20} className="text-gray-600" />
+                </button>
+                
+                <div>
+                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
+                    {activeSection === 'dashboard' ? 'Dashboard Overview' : 
+                     activeSection.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                  </h1>
+                  <p className="text-sm text-gray-600 mt-1 hidden sm:block">
+                    {activeSection === 'dashboard' ? 'Car Rental Management System' : 
+                     `Manage your ${activeSection.replace('-', ' ')}`}
+                  </p>
+                </div>
               </div>
               <div className="flex items-center space-x-4">
-                <div className="text-right">
+                <div className="text-right hidden sm:block">
                   <p className="text-sm font-medium text-gray-900">
                     {new Date().toLocaleDateString('en-US', { 
                       weekday: 'long', 
@@ -167,19 +199,28 @@ function App() {
                     Last updated: {new Date().toLocaleTimeString()}
                   </p>
                 </div>
+                {/* Mobile date */}
+                <div className="text-right sm:hidden">
+                  <p className="text-xs font-medium text-gray-900">
+                    {new Date().toLocaleDateString('en-US', { 
+                      month: 'short', 
+                      day: 'numeric' 
+                    })}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </header>
 
         {/* Page Content */}
-        <main className="p-6">
+        <main className="p-4 sm:p-6">
           {renderContent()}
         </main>
 
         {/* Footer */}
-        <footer className="bg-white border-t border-gray-200 mt-12">
-          <div className="px-6 py-4">
+        <footer className="bg-white border-t border-gray-200 mt-8 sm:mt-12">
+          <div className="px-4 sm:px-6 py-4">
             <div className="text-center text-sm text-gray-500">
               <p>&copy; 2024 LezGo Car Rental. All rights reserved.</p>
             </div>

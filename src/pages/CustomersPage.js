@@ -91,7 +91,7 @@ const CustomersPage = () => {
       </div>
 
       {/* Customer Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {customerStats.map((stat, index) => (
           <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
             <div className="flex items-center justify-between">
@@ -148,7 +148,7 @@ const CustomersPage = () => {
       </div>
 
       {/* Customer Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {customers.map((customer) => (
           <div key={customer.id} className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between mb-4">

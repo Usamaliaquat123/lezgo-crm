@@ -10,10 +10,12 @@ import {
   CreditCard,
   Bell,
   HelpCircle,
-  LogOut
+  LogOut,
+  X,
+  Camera
 } from 'lucide-react';
 
-const Sidebar = ({ activeSection, setActiveSection }) => {
+const Sidebar = ({ activeSection, setActiveSection, isMobileOpen, setIsMobileOpen, pendingProofsCount = 0 }) => {
   const menuItems = [
     {
       id: 'dashboard',
@@ -38,6 +40,12 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
       label: 'Bookings',
       icon: Calendar,
       color: 'text-orange-600'
+    },
+    {
+      id: 'parking-proofs',
+      label: 'Parking Proofs',
+      icon: Camera,
+      color: 'text-teal-600'
     },
     {
       id: 'customers',
@@ -88,20 +96,45 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
 
   const handleMenuClick = (itemId) => {
     setActiveSection(itemId);
+    // Close mobile sidebar after selection
+    if (setIsMobileOpen) {
+      setIsMobileOpen(false);
+    }
   };
 
   return (
-    <div className="fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 shadow-lg z-50 flex flex-col">
+    <>
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <div className={`fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 shadow-lg z-50 flex flex-col transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        isMobileOpen ? 'translate-x-0' : '-translate-x-full'
+      }`}>
       {/* Logo/Brand */}
       <div className="p-6 border-b border-gray-200">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-            <Car className="text-white" size={24} />
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <Car className="text-white" size={24} />
+            </div>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">LezGo</h1>
+              <p className="text-sm text-gray-500">Car Rental CRM</p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-gray-900">LezGo</h1>
-            <p className="text-sm text-gray-500">Car Rental CRM</p>
-          </div>
+          {/* Mobile Close Button */}
+          <button 
+            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            onClick={() => setIsMobileOpen(false)}
+          >
+            <X size={20} className="text-gray-500" />
+          </button>
         </div>
       </div>
 
@@ -127,7 +160,19 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
                   className={`mr-3 ${isActive ? 'text-blue-600' : item.color} group-hover:scale-110 transition-transform`} 
                 />
                 <span className="font-medium">{item.label}</span>
-                {isActive && (
+                
+                {/* Notification badge for parking proofs */}
+                {item.id === 'parking-proofs' && pendingProofsCount > 0 && (
+                  <div className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full min-w-[20px] h-5 flex items-center justify-center">
+                    {pendingProofsCount}
+                  </div>
+                )}
+                
+                {isActive && item.id !== 'parking-proofs' && (
+                  <div className="ml-auto w-2 h-2 bg-blue-500 rounded-full"></div>
+                )}
+                
+                {isActive && item.id === 'parking-proofs' && pendingProofsCount === 0 && (
                   <div className="ml-auto w-2 h-2 bg-blue-500 rounded-full"></div>
                 )}
               </button>
@@ -176,7 +221,8 @@ const Sidebar = ({ activeSection, setActiveSection }) => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

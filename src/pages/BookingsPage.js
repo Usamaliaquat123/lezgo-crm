@@ -91,7 +91,7 @@ const BookingsPage = () => {
       </div>
 
       {/* Booking Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {bookingStats.map((stat, index) => (
           <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
             <div className="flex items-center justify-between">
@@ -150,7 +150,7 @@ const BookingsPage = () => {
       {/* Bookings Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-full">
             <thead className="bg-gray-50 border-b border-gray-200">
               <tr>
                 <th className="text-left py-3 px-4 font-medium text-gray-700">Booking ID</th>

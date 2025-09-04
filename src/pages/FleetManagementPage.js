@@ -35,7 +35,7 @@ const FleetManagementPage = () => {
       </div>
 
       {/* Fleet Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {fleetStats.map((stat, index) => (
           <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
             <div className="flex items-center justify-between">
@@ -62,7 +62,7 @@ const FleetManagementPage = () => {
       </div>
 
       {/* Map and Vehicle List */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6">
         {/* Fleet Map */}
         <div>
           <CarMap />

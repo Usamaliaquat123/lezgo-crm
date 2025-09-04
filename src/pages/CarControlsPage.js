@@ -56,7 +56,7 @@ const CarControlsPage = () => {
       </div>
 
       {/* Cars Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {cars.map((car) => (
           <div key={car.id} className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-4">
