@@ -55,7 +55,7 @@ const Sidebar = ({ activeSection, setActiveSection, isMobileOpen, setIsMobileOpe
     },
     {
       id: 'user-management',
-      label: 'User Management',
+      label: 'Staffs',
       icon: Users,
       color: 'text-cyan-600'
     },
@@ -123,27 +123,27 @@ const Sidebar = ({ activeSection, setActiveSection, isMobileOpen, setIsMobileOpe
       )}
       
       {/* Sidebar */}
-      <div className={`fixed left-0 top-0 h-full w-72 bg-white border-r border-gray-100 shadow-xl z-50 flex flex-col transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+      <div className={`fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 shadow-lg z-50 flex flex-col transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
         isMobileOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
       {/* Logo/Brand */}
-      <div className="p-8 border-b border-gray-100">
+      <div className="p-6 border-b border-gray-200">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gray-900 rounded-xl flex items-center justify-center shadow-lg">
-              <Car className="text-white" size={26} />
+          <div className="flex items-center space-x-3">
+            <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center">
+              <Car className="text-white" size={20} />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 tracking-tight">LezGo</h1>
-              <p className="text-sm text-gray-500 font-medium">Car Rental CRM</p>
+              <h1 className="text-xl font-bold text-gray-900">LezGo</h1>
+              <p className="text-sm text-gray-500">Car Rental CRM</p>
             </div>
           </div>
           {/* Mobile Close Button */}
           <button 
-            className="lg:hidden p-2 rounded-xl hover:bg-gray-100 transition-all duration-200"
+            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
             onClick={() => setIsMobileOpen(false)}
           >
-            <X size={20} className="text-gray-400" />
+            <X size={18} className="text-gray-500" />
           </button>
         </div>
       </div>
@@ -220,10 +220,10 @@ const Sidebar = ({ activeSection, setActiveSection, isMobileOpen, setIsMobileOpe
       </div>
 
       {/* User Profile */}
-      <div className="p-4 border-t border-gray-200 bg-gray-50">
+      <div className="p-4 border-t border-gray-200">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-            <Users size={20} className="text-gray-600" />
+          <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
+            <Users size={16} className="text-white" />
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-900 truncate">Admin User</p>
