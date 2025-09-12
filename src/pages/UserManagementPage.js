@@ -22,6 +22,7 @@ import {
 const UserManagementPage = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [showAddUser, setShowAddUser] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
   const [users, setUsers] = useState([
     {
       id: 'USR001',
@@ -166,6 +167,17 @@ const UserManagementPage = () => {
     setUsers(users.filter(user => user.id !== userId));
   };
 
+  const handleEditUser = (user) => {
+    setEditingUser(user);
+  };
+
+  const handleUpdateUser = (updatedUser) => {
+    setUsers(users.map(user => 
+      user.id === updatedUser.id ? updatedUser : user
+    ));
+    setEditingUser(null);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -306,7 +318,10 @@ const UserManagementPage = () => {
                       >
                         <Eye size={16} />
                       </button>
-                      <button className="p-2 text-gray-400 hover:text-green-600 rounded-lg hover:bg-green-50 transition-colors">
+                      <button 
+                        onClick={() => handleEditUser(user)}
+                        className="p-2 text-gray-400 hover:text-green-600 rounded-lg hover:bg-green-50 transition-colors"
+                      >
                         <Edit size={16} />
                       </button>
                       <button 
@@ -327,17 +342,17 @@ const UserManagementPage = () => {
       {/* User Detail Modal */}
       {selectedUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[85vh] overflow-y-auto">
+          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[85vh] overflow-y-auto shadow-2xl">
             {/* Header */}
-            <div className="bg-gradient-to-r from-cyan-600 to-cyan-700 text-white p-4 rounded-t-xl">
+            <div className="border-b border-gray-200 p-4 rounded-t-xl">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                    <Users className="text-white" size={20} />
+                  <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+                    <Users className="text-gray-600" size={20} />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold">{selectedUser.name}</h2>
-                    <p className="text-cyan-100 text-sm">{selectedUser.id}</p>
+                    <h2 className="text-xl font-bold text-gray-900">{selectedUser.name}</h2>
+                    <p className="text-gray-500 text-sm">{selectedUser.id}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -346,7 +361,7 @@ const UserManagementPage = () => {
                   </span>
                   <button 
                     onClick={() => setSelectedUser(null)}
-                    className="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-1 transition-colors"
+                    className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1 transition-colors"
                   >
                     <X size={18} />
                   </button>
@@ -443,17 +458,17 @@ const UserManagementPage = () => {
 
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-3 pt-4 border-t border-gray-200">
-                <button className="flex items-center space-x-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+                <button className="flex items-center space-x-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors">
                   <Edit size={16} />
                   <span>Edit User</span>
                 </button>
-                <button className="flex items-center space-x-2 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                <button className="flex items-center space-x-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
                   <Key size={16} />
                   <span>Reset Password</span>
                 </button>
                 <button 
                   onClick={() => setSelectedUser(null)}
-                  className="flex items-center space-x-2 bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                  className="flex items-center space-x-2 border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
                 >
                   <X size={16} />
                   <span>Close</span>
@@ -462,6 +477,17 @@ const UserManagementPage = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Edit User Modal */}
+      {editingUser && (
+        <EditUserModal 
+          user={editingUser}
+          onClose={() => setEditingUser(null)}
+          onUpdateUser={handleUpdateUser}
+          roles={roles}
+          allPermissions={allPermissions}
+        />
       )}
 
       {/* Add User Modal */}
@@ -513,13 +539,13 @@ const AddUserModal = ({ onClose, onAddUser, roles, allPermissions }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-xl max-w-lg w-full">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-t-xl">
+      <div className="bg-white rounded-xl max-w-lg w-full shadow-2xl">
+        <div className="border-b border-gray-200 p-4 rounded-t-xl">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold">Add New User</h2>
+            <h2 className="text-xl font-bold text-gray-900">Add New User</h2>
             <button 
               onClick={onClose}
-              className="text-white hover:bg-white hover:bg-opacity-20 rounded-lg p-1 transition-colors"
+              className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1 transition-colors"
             >
               <X size={18} />
             </button>
@@ -621,17 +647,228 @@ const AddUserModal = ({ onClose, onAddUser, roles, allPermissions }) => {
             </div>
           )}
 
-          <div className="flex space-x-3 pt-4">
+          <div className="flex space-x-3 pt-4 border-t border-gray-200">
             <button
               type="submit"
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="flex-1 bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors font-medium"
             >
               Add User
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+              className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors font-medium"
+            >
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// Edit User Modal Component
+const EditUserModal = ({ user, onClose, onUpdateUser, roles, allPermissions }) => {
+  const [formData, setFormData] = useState({
+    name: user.name,
+    email: user.email,
+    phone: user.phone,
+    role: user.role,
+    department: user.department,
+    status: user.status
+  });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const selectedRole = roles.find(r => r.name === formData.role);
+    const updatedUser = {
+      ...user,
+      ...formData,
+      permissions: selectedRole.permissions.includes('all') ? ['all'] : selectedRole.permissions
+    };
+    onUpdateUser(updatedUser);
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-xl max-w-lg w-full shadow-2xl">
+        {/* Compact Header */}
+        <div className="border-b border-gray-200 p-4 rounded-t-xl">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center">
+                <Edit className="text-gray-600" size={16} />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">Edit User</h2>
+                <p className="text-gray-500 text-sm">{user.id}</p>
+              </div>
+            </div>
+            <button 
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1 transition-colors"
+            >
+              <X size={18} />
+            </button>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-4 space-y-4">
+          {/* Name and Email */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm"
+                required
+              />
+            </div>
+          </div>
+
+          {/* Phone and Department */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+              <input
+                type="tel"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Department</label>
+              <select
+                name="department"
+                value={formData.department}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm"
+                required
+              >
+                <option value="">Select Department</option>
+                <option value="Management">Management</option>
+                <option value="Operations">Operations</option>
+                <option value="Customer Service">Customer Service</option>
+                <option value="Maintenance">Maintenance</option>
+                <option value="Finance">Finance</option>
+                <option value="IT">IT</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Role and Status */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
+              <select
+                name="role"
+                value={formData.role}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm"
+              >
+                {roles.map((role) => (
+                  <option key={role.name} value={role.name}>{role.name}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <select
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-500 focus:border-transparent text-sm"
+              >
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Role Description */}
+          {formData.role && (
+            <div className="bg-gray-50 rounded-lg p-3">
+              <div className="flex items-start space-x-2">
+                <Shield className="text-gray-500 mt-0.5" size={14} />
+                <div>
+                  <p className="text-sm font-medium text-gray-700">{formData.role} Role</p>
+                  <p className="text-xs text-gray-600">
+                    {roles.find(r => r.name === formData.role)?.description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Permissions Preview */}
+          <div className="bg-gray-50 rounded-lg p-3">
+            <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center">
+              <Key className="mr-1" size={14} />
+              Permissions Preview
+            </h4>
+            <div className="grid grid-cols-2 gap-2">
+              {allPermissions.slice(0, 6).map((permission) => {
+                const selectedRole = roles.find(r => r.name === formData.role);
+                const hasPermission = selectedRole?.permissions.includes('all') || selectedRole?.permissions.includes(permission.id);
+                return (
+                  <div key={permission.id} className={`flex items-center space-x-1 text-xs ${
+                    hasPermission ? 'text-green-700' : 'text-gray-500'
+                  }`}>
+                    {hasPermission ? (
+                      <CheckCircle size={12} className="text-green-600" />
+                    ) : (
+                      <AlertCircle size={12} className="text-gray-400" />
+                    )}
+                    <span className="truncate">{permission.name}</span>
+                  </div>
+                );
+              })}
+            </div>
+            {allPermissions.length > 6 && (
+              <p className="text-xs text-gray-500 mt-2">
+                +{allPermissions.length - 6} more permissions...
+              </p>
+            )}
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex space-x-3 pt-3 border-t border-gray-200">
+            <button
+              type="submit"
+              className="flex-1 bg-gray-900 text-white py-2 px-4 rounded-lg hover:bg-gray-800 transition-colors font-medium text-sm"
+            >
+              Update User
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm"
             >
               Cancel
             </button>
