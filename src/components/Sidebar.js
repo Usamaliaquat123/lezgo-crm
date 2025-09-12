@@ -15,7 +15,7 @@ import {
   Camera
 } from 'lucide-react';
 
-const Sidebar = ({ activeSection, setActiveSection, isMobileOpen, setIsMobileOpen, pendingProofsCount = 0 }) => {
+const Sidebar = ({ activeSection, setActiveSection, isMobileOpen, setIsMobileOpen, pendingProofsCount = 0, onLogout }) => {
   const menuItems = [
     {
       id: 'dashboard',
@@ -95,7 +95,11 @@ const Sidebar = ({ activeSection, setActiveSection, isMobileOpen, setIsMobileOpe
   ];
 
   const handleMenuClick = (itemId) => {
-    setActiveSection(itemId);
+    if (itemId === 'logout') {
+      onLogout();
+    } else {
+      setActiveSection(itemId);
+    }
     // Close mobile sidebar after selection
     if (setIsMobileOpen) {
       setIsMobileOpen(false);
@@ -108,7 +112,7 @@ const Sidebar = ({ activeSection, setActiveSection, isMobileOpen, setIsMobileOpe
       {isMobileOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-          onClick={() => setIsMobileOpen(false)}
+          onClick={() =>  (false)}
         />
       )}
       

@@ -11,6 +11,7 @@ import PaymentsPage from './pages/PaymentsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import ParkingProofsPage from './pages/ParkingProofsPage';
 import SettingsPage from './pages/SettingsPage';
+import LoginPage from './pages/LoginPage';
 
 // Mock data - replace with real API calls
 const generateMockData = () => {
@@ -83,8 +84,19 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
+    // Check for stored authentication
+    const storedAuth = localStorage.getItem('lezgo_auth');
+    if (storedAuth) {
+      setData(generateMockData());
+      const authData = JSON.parse(storedAuth);
+      setIsAuthenticated(true);
+      setUser(authData.user);
+    }
+
     // Simulate API call
     const fetchData = async () => {
       setLoading(true);
@@ -94,12 +106,45 @@ function App() {
       setLoading(false);
     };
 
-    fetchData();
+    if (isAuthenticated) {
+      fetchData();
+      
+      // Update data every 30 seconds
+      const interval = setInterval(fetchData, 30000);
+      return () => clearInterval(interval);
+    } else {
+      setLoading(false);
+    }
+  }, [isAuthenticated]);
+
+  const handleLogin = (loginData) => {
+    // Simulate successful login
+    const userData = {
+      email: loginData.email,
+      name: loginData.email.split('@')[0],
+      role: 'admin'
+    };
     
-    // Update data every 30 seconds
-    // const interval = setInterval(fetchData, 30000);
-    // return () => clearInterval(interval);
-  }, []);
+    setUser(userData);
+    setIsAuthenticated(true);
+    setData(generateMockData());
+    setActiveSection('dashboard'); // Redirect to dashboard
+
+    // Store in localStorage
+    localStorage.setItem('lezgo_auth', JSON.stringify({
+      user: userData,
+      token: 'mock-jwt-token',
+      timestamp: Date.now()
+    }));
+  };
+
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setUser(null);
+    setActiveSection('dashboard');
+    localStorage.removeItem('lezgo_auth');
+  };
 
   const renderContent = () => {
     switch (activeSection) {
@@ -137,6 +182,15 @@ function App() {
     }
   };
 
+  // Show login page if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <LoginPage 
+        onLogin={handleLogin}
+      />
+    );
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -157,6 +211,7 @@ function App() {
         isMobileOpen={isMobileOpen}
         setIsMobileOpen={setIsMobileOpen}
         pendingProofsCount={data?.pendingProofsCount || 0}
+        onLogout={handleLogout}
       />
       
       {/* Main Content */}
