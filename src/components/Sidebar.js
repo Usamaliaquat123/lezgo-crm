@@ -54,6 +54,12 @@ const Sidebar = ({ activeSection, setActiveSection, isMobileOpen, setIsMobileOpe
       color: 'text-indigo-600'
     },
     {
+      id: 'user-management',
+      label: 'User Management',
+      icon: Users,
+      color: 'text-cyan-600'
+    },
+    {
       id: 'analytics',
       label: 'Analytics',
       icon: BarChart3,

@@ -269,9 +269,7 @@ const CustomersPage = () => {
                       >
                         <Eye size={16} />
                       </button>
-                      <button className="p-2 text-gray-400 hover:text-green-600 rounded-lg hover:bg-green-50 transition-colors">
-                        <Edit size={16} />
-                      </button>
+                
                     </div>
                   </td>
                 </tr>

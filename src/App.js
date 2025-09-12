@@ -6,6 +6,7 @@ import CarControlsPage from './pages/CarControlsPage';
 import FleetManagementPage from './pages/FleetManagementPage';
 import BookingsPage from './pages/BookingsPage';
 import CustomersPage from './pages/CustomersPage';
+import UserManagementPage from './pages/UserManagementPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import PaymentsPage from './pages/PaymentsPage';
 import NotificationsPage from './pages/NotificationsPage';
@@ -160,6 +161,8 @@ function App() {
         return <ParkingProofsPage />;
       case 'customers':
         return <CustomersPage />;
+      case 'user-management':
+        return <UserManagementPage />;
       case 'analytics':
         return <AnalyticsPage />;
       case 'payments':
