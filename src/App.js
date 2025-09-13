@@ -4,6 +4,7 @@ import Sidebar from './components/Sidebar';
 import DashboardPage from './pages/DashboardPage';
 import CarControlsPage from './pages/CarControlsPage';
 import FleetManagementPage from './pages/FleetManagementPage';
+import VehicleManagementPage from './pages/VehicleManagementPage';
 import BookingsPage from './pages/BookingsPage';
 import CustomersPage from './pages/CustomersPage';
 import UserManagementPage from './pages/UserManagementPage';
@@ -155,6 +156,8 @@ function App() {
         return <CarControlsPage />;
       case 'fleet-management':
         return <FleetManagementPage />;
+      case 'vehicle-management':
+        return <VehicleManagementPage />;
       case 'bookings':
         return <BookingsPage />;
       case 'parking-proofs':

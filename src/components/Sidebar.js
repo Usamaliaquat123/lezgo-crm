@@ -36,6 +36,12 @@ const Sidebar = ({ activeSection, setActiveSection, isMobileOpen, setIsMobileOpe
       color: 'text-purple-600'
     },
     {
+      id: 'vehicle-management',
+      label: 'Vehicles',
+      icon: Car,
+      color: 'text-blue-600'
+    },
+    {
       id: 'bookings',
       label: 'Bookings',
       icon: Calendar,
