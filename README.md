@@ -106,6 +106,13 @@ The dashboard currently uses generated mock data that includes:
 - Safari
 - Edge
 
+
+## Backend 
+
+### Car 
+- if the car doesnt rented out in the past 24 hours car status should automatically moved to REBALANCING status and add 10% discount charges apply on that specific car. if the customer book that ride then the discount apply only on the first customer and the status  changed to rebalancing.
+
+
 ## License
 
 This project is proprietary software for LezGo Car Rental.

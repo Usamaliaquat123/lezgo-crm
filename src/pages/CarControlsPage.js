@@ -5,6 +5,34 @@ const CarControlsPage = () => {
   const [notification, setNotification] = useState(null);
   const [selectedCar, setSelectedCar] = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(null);
+
+  // Function to determine car status based on battery level
+  const getCarStatus = (car) => {
+    if (car.battery < 12) {
+      return 'discharged';
+    }
+    return car.status;
+  };
+
+  // Function to get status styling
+  const getStatusStyle = (status) => {
+    switch (status) {
+      case 'available':
+        return 'bg-green-100 text-green-800';
+      case 'rented':
+        return 'bg-orange-100 text-orange-800';
+      case 'discharged':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  // Function to check if car controls should be disabled
+  const isCarDisabled = (car) => {
+    const status = getCarStatus(car);
+    return status === 'rented' || status === 'discharged';
+  };
   const [cars, setCars] = useState([
     { id: 1, model: 'Mitsubishi ASX', plate: 'U47449', status: 'available', battery: 85, location: 'Dubai Marina', year: '2022', color: 'Silver' },
     { id: 2, model: 'Toyota RAV4', plate: 'U47450', status: 'available', battery: 92, location: 'Downtown Dubai', year: '2023', color: 'White' },
@@ -13,11 +41,30 @@ const CarControlsPage = () => {
     { id: 5, model: 'BMW X3', plate: 'U47453', status: 'available', battery: 45, location: 'Bur Dubai', year: '2022', color: 'Gray' },
     { id: 6, model: 'Nissan Leaf', plate: 'U47454', status: 'available', battery: 67, location: 'Al Barsha', year: '2023', color: 'Green' },
     { id: 7, model: 'Mercedes C-Class', plate: 'U47455', status: 'rented', battery: 15, location: 'Business Bay', year: '2022', color: 'Red' },
-    { id: 8, model: 'Audi Q5', plate: 'U47456', status: 'available', battery: 89, location: 'JLT', year: '2023', color: 'Black' }
+    { id: 8, model: 'Audi Q5', plate: 'U47456', status: 'available', battery: 9, location: 'JLT', year: '2023', color: 'Black' }
   ]);
 
   const handleCarAction = (carId, action) => {
     const car = cars.find(c => c.id === carId);
+    const carStatus = getCarStatus(car);
+    
+    // Check if action is allowed
+    if (carStatus === 'discharged') {
+      setNotification({
+        message: `${car.model} (${car.plate}) is discharged and cannot be operated`,
+        type: 'error'
+      });
+      return;
+    }
+    
+    if (carStatus === 'rented') {
+      setNotification({
+        message: `${car.model} (${car.plate}) is currently rented and cannot be controlled`,
+        type: 'error'
+      });
+      return;
+    }
+
     const actionMessages = {
       unlock: `${car.model} (${car.plate}) has been unlocked successfully`,
       lock: `${car.model} (${car.plate}) has been locked successfully`, 
@@ -97,6 +144,9 @@ const CarControlsPage = () => {
               <option value="all">All Cars</option>
               <option value="available">Available</option>
               <option value="rented">Rented</option>
+              <option value="discharged">Discharged</option>
+              <option value="rebalancing">Rebalancing</option>
+              <option value="under-investigation">Under Investigation</option>
               <option value="maintenance">Maintenance</option>
             </select>
           </div>
@@ -126,12 +176,8 @@ const CarControlsPage = () => {
                   <p className="text-sm text-gray-500">{car.plate}</p>
                 </div>
               </div>
-              <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                car.status === 'available' 
-                  ? 'bg-green-100 text-green-800' 
-                  : 'bg-orange-100 text-orange-800'
-              }`}>
-                {car.status}
+              <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusStyle(getCarStatus(car))}`}>
+                {getCarStatus(car)}
               </span>
             </div>
 
@@ -140,6 +186,7 @@ const CarControlsPage = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <Battery size={16} className={`${
+                    car.battery < 12 ? 'text-red-600' :
                     car.battery > 50 ? 'text-green-500' : 
                     car.battery > 25 ? 'text-yellow-500' : 'text-red-500'
                   }`} />
@@ -151,6 +198,7 @@ const CarControlsPage = () => {
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div 
                   className={`h-2 rounded-full transition-all duration-300 ${
+                    car.battery < 12 ? 'bg-red-600' :
                     car.battery > 50 ? 'bg-green-500' : 
                     car.battery > 25 ? 'bg-yellow-500' : 'bg-red-500'
                   }`}
@@ -169,7 +217,7 @@ const CarControlsPage = () => {
               <button 
                 onClick={() => handleCarAction(car.id, 'unlock')}
                 className="flex items-center justify-center space-x-2 px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors disabled:opacity-50"
-                disabled={car.status === 'rented'}
+                disabled={isCarDisabled(car)}
               >
                 <Unlock size={16} />
                 <span className="text-sm font-medium">Unlock</span>
@@ -186,7 +234,7 @@ const CarControlsPage = () => {
               <button 
                 onClick={() => handleCarAction(car.id, 'start')}
                 className="flex items-center justify-center space-x-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors disabled:opacity-50"
-                disabled={car.status === 'rented'}
+                disabled={isCarDisabled(car)}
               >
                 <Power size={16} />
                 <span className="text-sm font-medium">Start</span>
