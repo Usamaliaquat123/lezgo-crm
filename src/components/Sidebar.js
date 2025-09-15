@@ -31,7 +31,7 @@ const Sidebar = ({ activeSection, setActiveSection, isMobileOpen, setIsMobileOpe
     },
     {
       id: 'fleet-management',
-      label: 'Fleet Management',
+      label: 'Fleet',
       icon: MapPin,
       color: 'text-purple-600'
     },
@@ -129,27 +129,27 @@ const Sidebar = ({ activeSection, setActiveSection, isMobileOpen, setIsMobileOpe
       )}
       
       {/* Sidebar */}
-      <div className={`fixed left-0 top-0 h-full w-64 bg-white border-r border-gray-200 shadow-lg z-50 flex flex-col transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+      <div className={`fixed left-0 top-0 h-full w-64 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 shadow-lg z-50 flex flex-col transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${
         isMobileOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
       {/* Logo/Brand */}
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gray-900 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gray-900 dark:bg-blue-600 rounded-lg flex items-center justify-center">
               <Car className="text-white" size={20} />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-gray-900">LezGo</h1>
-              <p className="text-sm text-gray-500">Car Rental CRM</p>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-white">LezGo</h1>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Car Rental CRM</p>
             </div>
           </div>
           {/* Mobile Close Button */}
           <button 
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             onClick={() => setIsMobileOpen(false)}
           >
-            <X size={18} className="text-gray-500" />
+            <X size={18} className="text-gray-500 dark:text-gray-400" />
           </button>
         </div>
       </div>
@@ -167,13 +167,13 @@ const Sidebar = ({ activeSection, setActiveSection, isMobileOpen, setIsMobileOpe
                 onClick={() => handleMenuClick(item.id)}
                 className={`w-full flex items-center px-4 py-3 text-left rounded-lg transition-all duration-200 group ${
                   isActive 
-                    ? 'bg-blue-50 border-r-4 border-blue-500 text-blue-700' 
-                    : 'hover:bg-gray-50 text-gray-700 hover:text-gray-900'
+                    ? 'bg-blue-50 dark:bg-blue-900/20 border-r-4 border-blue-500 text-blue-700 dark:text-blue-400' 
+                    : 'hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'
                 }`}
               >
                 <Icon 
                   size={20} 
-                  className={`mr-3 ${isActive ? 'text-blue-600' : item.color} group-hover:scale-110 transition-transform`} 
+                  className={`mr-3 ${isActive ? 'text-blue-600 dark:text-blue-400' : item.color + ' dark:text-gray-400'} group-hover:scale-110 transition-transform`} 
                 />
                 <span className="font-medium">{item.label}</span>
                 
@@ -198,8 +198,8 @@ const Sidebar = ({ activeSection, setActiveSection, isMobileOpen, setIsMobileOpe
       </div>
 
       {/* Bottom Navigation */}
-      <div className="p-4 border-t border-gray-200">
-        <nav className="space-y-2">
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
+        {/* <nav className="space-y-2">
           {bottomMenuItems.map((item) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
@@ -222,18 +222,18 @@ const Sidebar = ({ activeSection, setActiveSection, isMobileOpen, setIsMobileOpe
               </button>
             );
           })}
-        </nav>
+        </nav> */}
       </div>
 
       {/* User Profile */}
-      <div className="p-4 border-t border-gray-200">
+      <div className="p-4 border-t border-gray-200 dark:border-gray-700">
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gray-900 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-gray-900 dark:bg-blue-600 rounded-lg flex items-center justify-center">
             <Users size={16} className="text-white" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">Admin User</p>
-            <p className="text-xs text-gray-500 truncate">admin@lezgo.com</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">Admin User</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">admin@lezgo.com</p>
           </div>
         </div>
       </div>

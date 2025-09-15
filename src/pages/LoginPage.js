@@ -55,9 +55,9 @@ const LoginPage = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
       {/* Left Panel - Form */}
-      <div className="w-full lg:w-1/2 bg-white flex items-center justify-center p-8">
+      <div className="w-full lg:w-1/2 bg-white dark:bg-gray-800 flex items-center justify-center p-8 transition-colors duration-200">
         <div className="max-w-md w-full">
           {/* Logo and Brand */}
           <div className="mb-8">
@@ -65,10 +65,10 @@ const LoginPage = ({ onLogin }) => {
               <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center mr-3">
                 <Car className="text-white" size={20} />
               </div>
-              <span className="text-gray-900 text-xl font-bold">LezGo</span>
+              <span className="text-gray-900 dark:text-white text-xl font-bold">LezGo</span>
             </div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-            <p className="text-gray-600">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome Back</h1>
+            <p className="text-gray-600 dark:text-gray-400">
               Sign in to access your LezGo dashboard
             </p>
           </div>
@@ -77,7 +77,7 @@ const LoginPage = ({ onLogin }) => {
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Email
               </label>
               <input
@@ -86,19 +86,19 @@ const LoginPage = ({ onLogin }) => {
                 type="email"
                 value={formData.email}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                  errors.email ? 'border-red-500 bg-red-50' : 'hover:border-gray-400'
+                className={`w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                  errors.email ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'hover:border-gray-400 dark:hover:border-gray-500'
                 }`}
                 placeholder="your email here"
               />
               {errors.email && (
-                <p className="mt-1 text-sm text-red-600">{errors.email}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.email}</p>
               )}
             </div>
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Password
               </label>
               <div className="relative">
@@ -108,8 +108,8 @@ const LoginPage = ({ onLogin }) => {
                   type={showPassword ? 'text' : 'password'}
                   value={formData.password}
                   onChange={handleInputChange}
-                  className={`w-full px-4 py-3 pr-12 bg-white border border-gray-300 rounded-lg text-gray-900 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
-                    errors.password ? 'border-red-500 bg-red-50' : 'hover:border-gray-400'
+                  className={`w-full px-4 py-3 pr-12 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                    errors.password ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'hover:border-gray-400 dark:hover:border-gray-500'
                   }`}
                   placeholder="your password"
                 />
@@ -119,14 +119,14 @@ const LoginPage = ({ onLogin }) => {
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? (
-                    <EyeOff className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <EyeOff className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
                   ) : (
-                    <Eye className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+                    <Eye className="h-5 w-5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400" />
                   )}
                 </button>
               </div>
               {errors.password && (
-                <p className="mt-1 text-sm text-red-600">{errors.password}</p>
+                <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.password}</p>
               )}
             </div>
 
@@ -137,15 +137,15 @@ const LoginPage = ({ onLogin }) => {
                   id="remember-me"
                   name="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700">
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
                   Remember me
                 </label>
               </div>
               <button
                 type="button"
-                className="text-sm text-blue-600 hover:text-blue-700 transition-colors font-medium"
+                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium"
               >
                 Forgot password?
               </button>
@@ -185,7 +185,7 @@ const LoginPage = ({ onLogin }) => {
           <div className="mt-6 grid grid-cols-2 gap-3">
             <button
               type="button"
-              className="w-full inline-flex justify-center py-3 px-4 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all"
+              className="w-full inline-flex justify-center py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-all"
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
@@ -198,7 +198,7 @@ const LoginPage = ({ onLogin }) => {
 
             <button
               type="button"
-              className="w-full inline-flex justify-center py-3 px-4 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all"
+              className="w-full inline-flex justify-center py-3 px-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 hover:border-gray-400 dark:hover:border-gray-500 transition-all"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
@@ -210,12 +210,12 @@ const LoginPage = ({ onLogin }) => {
       </div>
 
       {/* Right Panel - Features */}
-      <div className="hidden lg:block lg:w-1/2 bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="hidden lg:block lg:w-1/2 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-700 dark:to-gray-800">
         <div className="h-full flex items-center justify-center p-12">
           <div className="max-w-lg">
             <div className="text-center mb-8">
-              <h2 className="text-4xl font-bold text-gray-900 mb-4">Drive Your Dreams</h2>
-              <p className="text-xl text-gray-600">
+              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Drive Your Dreams</h2>
+              <p className="text-xl text-gray-600 dark:text-gray-300">
                 Experience premium car rental services with our modern fleet
               </p>
             </div>
@@ -223,65 +223,65 @@ const LoginPage = ({ onLogin }) => {
             {/* Features List */}
             <div className="space-y-6">
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <Car className="h-6 w-6 text-blue-600" />
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <Car className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Premium Fleet</h3>
-                  <p className="text-gray-600">Access to luxury and economy vehicles from top brands worldwide</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Premium Fleet</h3>
+                  <p className="text-gray-600 dark:text-gray-300">Access to luxury and economy vehicles from top brands worldwide</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <svg className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg className="h-6 w-6 text-green-600 dark:text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">24/7 Support</h3>
-                  <p className="text-gray-600">Round-the-clock customer service and roadside assistance</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1">24/7 Support</h3>
+                  <p className="text-gray-600 dark:text-gray-300">Round-the-clock customer service and roadside assistance</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <svg className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg className="h-6 w-6 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Secure & Safe</h3>
-                  <p className="text-gray-600">All vehicles are insured and regularly maintained for your safety</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Secure & Safe</h3>
+                  <p className="text-gray-600 dark:text-gray-300">All vehicles are insured and regularly maintained for your safety</p>
                 </div>
               </div>
 
               <div className="flex items-start space-x-4">
-                <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                  <svg className="h-6 w-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/20 rounded-lg flex items-center justify-center flex-shrink-0">
+                  <svg className="h-6 w-6 text-orange-600 dark:text-orange-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-1">Best Prices</h3>
-                  <p className="text-gray-600">Competitive rates with no hidden fees and flexible payment options</p>
+                  <h3 className="font-semibold text-gray-900 dark:text-white mb-1">Best Prices</h3>
+                  <p className="text-gray-600 dark:text-gray-300">Competitive rates with no hidden fees and flexible payment options</p>
                 </div>
               </div>
             </div>
 
             {/* Stats */}
             <div className="mt-8 grid grid-cols-3 gap-4 text-center">
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="text-2xl font-bold text-gray-900">1000+</div>
-                <div className="text-sm text-gray-600">Happy Customers</div>
+              <div className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">1000+</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">Happy Customers</div>
               </div>
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="text-2xl font-bold text-gray-900">500+</div>
-                <div className="text-sm text-gray-600">Cars Available</div>
+              <div className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">500+</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">Cars Available</div>
               </div>
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <div className="text-2xl font-bold text-gray-900">50+</div>
-                <div className="text-sm text-gray-600">Locations</div>
+              <div className="bg-white dark:bg-gray-700 rounded-lg p-4 shadow-sm">
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">50+</div>
+                <div className="text-sm text-gray-600 dark:text-gray-300">Locations</div>
               </div>
             </div>
           </div>

@@ -5,8 +5,8 @@ const SalesChart = ({ data, type = 'line', title, dataType = 'sales' }) => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
-          <p className="text-sm font-medium text-gray-900">{`${label}`}</p>
+        <div className="bg-white dark:bg-gray-800 p-3 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg">
+          <p className="text-sm font-medium text-gray-900 dark:text-white">{`${label}`}</p>
           {payload.map((entry, index) => (
             <p key={index} className="text-sm" style={{ color: entry.color }}>
               {dataType === 'rides' 
@@ -23,7 +23,7 @@ const SalesChart = ({ data, type = 'line', title, dataType = 'sales' }) => {
 
   return (
     <div className="chart-container animate-slide-up">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">{title}</h3>
       <div className="h-64">
         <ResponsiveContainer width="100%" height="100%">
           {type === 'line' ? (

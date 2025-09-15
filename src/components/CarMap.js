@@ -242,19 +242,19 @@ const CarMap = () => {
   return (
     <div className="chart-container animate-slide-up">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Live Car Tracking   </h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Live Car Tracking   </h3>
         <div className="flex items-center space-x-4 text-xs">
           <div className="flex items-center">
             <div className="w-3 h-3 bg-green-500 rounded-full mr-1"></div>
-            <span>Available ({statusCounts.available || 0})</span>
+            <span className="text-gray-600 dark:text-gray-400">Available ({statusCounts.available || 0})</span>
           </div>
           <div className="flex items-center">
             <div className="w-3 h-3 bg-orange-500 rounded-full mr-1"></div>
-            <span>Rented ({statusCounts.rented || 0})</span>
+            <span className="text-gray-600 dark:text-gray-400">Rented ({statusCounts.rented || 0})</span>
           </div>
           <div className="flex items-center">
             <div className="w-3 h-3 bg-red-500 rounded-full mr-1"></div>
-            <span>Maintenance ({statusCounts.maintenance || 0})</span>
+            <span className="text-gray-600 dark:text-gray-400">Maintenance ({statusCounts.maintenance || 0})</span>
           </div>
         </div>
       </div>

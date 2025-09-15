@@ -58,40 +58,40 @@ const UserTracker = ({ userData }) => {
   return (
     <div className="chart-container animate-slide-up">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">User Analytics</h3>
-        <div className="text-sm text-gray-500">
-          <span className="font-medium text-blue-600">{((activeUsers / totalUsers) * 100).toFixed(1)}%</span> engagement rate
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">User Analytics</h3>
+        <div className="text-sm text-gray-500 dark:text-gray-400">
+          <span className="font-medium text-blue-600 dark:text-blue-400">{((activeUsers / totalUsers) * 100).toFixed(1)}%</span> engagement rate
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-4 mb-6">
         {stats.map((stat, index) => (
-          <div key={index} className="p-4 rounded-lg border border-gray-100 hover:border-gray-200 transition-colors">
+          <div key={index} className="p-4 rounded-lg border border-gray-100 dark:border-gray-700 hover:border-gray-200 dark:hover:border-gray-600 transition-colors">
             <div className="flex items-center justify-between mb-2">
               <div className={`p-2 rounded-lg ${
-                stat.color === 'blue' ? 'bg-blue-50 text-blue-600' :
-                stat.color === 'green' ? 'bg-green-50 text-green-600' :
-                stat.color === 'purple' ? 'bg-purple-50 text-purple-600' :
-                'bg-orange-50 text-orange-600'
+                stat.color === 'blue' ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' :
+                stat.color === 'green' ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400' :
+                stat.color === 'purple' ? 'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400' :
+                'bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400'
               }`}>
                 <stat.icon size={16} />
               </div>
               {stat.trend !== undefined && (
                 <span className={`text-xs font-medium ${
-                  stat.isPositive ? 'text-green-600' : 'text-red-600'
+                  stat.isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                 }`}>
                   {stat.isPositive ? '↗' : '↘'} {Math.abs(stat.trend)}%
                 </span>
               )}
             </div>
             <div>
-              <p className="text-xl font-bold text-gray-900">{stat.value}</p>
-              <p className="text-xs text-gray-500 font-medium">{stat.title}</p>
+              <p className="text-xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 font-medium">{stat.title}</p>
               {stat.description && (
-                <p className="text-xs text-gray-400 mt-1">{stat.description}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{stat.description}</p>
               )}
               {stat.previousValue && (
-                <p className="text-xs text-gray-400 mt-1">
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
                   Yesterday: {stat.previousValue}
                 </p>
               )}
@@ -102,40 +102,40 @@ const UserTracker = ({ userData }) => {
 
       {/* User Activity Timeline */}
       <div className="space-y-3">
-        <h4 className="text-sm font-semibold text-gray-700">Recent Activity</h4>
+        <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300">Recent Activity</h4>
         
         <div className="space-y-2">
-          <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+          <div className="flex items-center justify-between p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
             <div className="flex items-center">
               <UserPlus className="text-blue-600 mr-3" size={16} />
               <div>
-                <p className="text-sm font-medium text-blue-900">New Registrations</p>
-                <p className="text-xs text-blue-600">Last hour: 3 users</p>
+                <p className="text-sm font-medium text-blue-900 dark:text-blue-100">New Registrations</p>
+                <p className="text-xs text-blue-600 dark:text-blue-400">Last hour: 3 users</p>
               </div>
             </div>
-            <span className="text-sm font-bold text-blue-600">{newUsersToday}</span>
+            <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{newUsersToday}</span>
           </div>
 
-          <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+          <div className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
             <div className="flex items-center">
               <Calendar className="text-green-600 mr-3" size={16} />
               <div>
-                <p className="text-sm font-medium text-green-900">Bookings Made</p>
-                <p className="text-xs text-green-600">Last hour: {Math.floor(bookingsToday / 8)} bookings</p>
+                <p className="text-sm font-medium text-green-900 dark:text-green-100">Bookings Made</p>
+                <p className="text-xs text-green-600 dark:text-green-400">Last hour: {Math.floor(bookingsToday / 8)} bookings</p>
               </div>
             </div>
-            <span className="text-sm font-bold text-green-600">{bookingsToday}</span>
+            <span className="text-sm font-bold text-green-600 dark:text-green-400">{bookingsToday}</span>
           </div>
 
-          <div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
+          <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
             <div className="flex items-center">
               <TrendingUp className="text-purple-600 mr-3" size={16} />
               <div>
-                <p className="text-sm font-medium text-purple-900">Conversion Rate</p>
-                <p className="text-xs text-purple-600">Users to bookings</p>
+                <p className="text-sm font-medium text-purple-900 dark:text-purple-100">Conversion Rate</p>
+                <p className="text-xs text-purple-600 dark:text-purple-400">Users to bookings</p>
               </div>
             </div>
-            <span className="text-sm font-bold text-purple-600">
+            <span className="text-sm font-bold text-purple-600 dark:text-purple-400">
               {((bookingsToday / newUsersToday) * 100).toFixed(1)}%
             </span>
           </div>
@@ -145,11 +145,11 @@ const UserTracker = ({ userData }) => {
       {/* Progress indicators */}
       <div className="mt-4 space-y-2">
         <div>
-          <div className="flex justify-between text-xs text-gray-600 mb-1">
+          <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
             <span>Daily User Target</span>
             <span>{newUsersToday}/50</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div 
               className="bg-blue-500 h-2 rounded-full transition-all duration-500"
               style={{ width: `${Math.min((newUsersToday / 50) * 100, 100)}%` }}
@@ -158,11 +158,11 @@ const UserTracker = ({ userData }) => {
         </div>
 
         <div>
-          <div className="flex justify-between text-xs text-gray-600 mb-1">
+          <div className="flex justify-between text-xs text-gray-600 dark:text-gray-400 mb-1">
             <span>Daily Booking Target</span>
             <span>{bookingsToday}/30</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div 
               className="bg-green-500 h-2 rounded-full transition-all duration-500"
               style={{ width: `${Math.min((bookingsToday / 30) * 100, 100)}%` }}

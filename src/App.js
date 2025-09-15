@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Calendar, DollarSign, Car, TrendingUp, Users, MapPin, CheckCircle, Clock, AlertTriangle, Menu } from 'lucide-react';
+import { Calendar, DollarSign, Car, TrendingUp, Users, MapPin, CheckCircle, Clock, AlertTriangle, Menu, Bell, Settings, LogOut, User, ChevronDown } from 'lucide-react';
+import { ThemeProvider } from './contexts/ThemeContext';
 import Sidebar from './components/Sidebar';
 import DashboardPage from './pages/DashboardPage';
 import CarControlsPage from './pages/CarControlsPage';
@@ -88,6 +89,13 @@ function App() {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [notifications] = useState([
+    { id: 1, message: 'New booking received', time: '2 min ago', unread: true },
+    { id: 2, message: 'Vehicle maintenance due', time: '1 hour ago', unread: true },
+    { id: 3, message: 'Payment processed successfully', time: '3 hours ago', unread: false }
+  ]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
     // Check for stored authentication
@@ -118,6 +126,21 @@ function App() {
       setLoading(false);
     }
   }, [isAuthenticated]);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (!event.target.closest('.dropdown-container')) {
+        setUserDropdownOpen(false);
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   const handleLogin = (loginData) => {
     // Simulate successful login
@@ -191,25 +214,30 @@ function App() {
   // Show login page if not authenticated
   if (!isAuthenticated) {
     return (
-      <LoginPage 
-        onLogin={handleLogin}
-      />
+      <ThemeProvider>
+        <LoginPage 
+          onLogin={handleLogin}
+        />
+      </ThemeProvider>
     );
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+      <ThemeProvider>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center transition-colors duration-200">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-300">Loading dashboard...</p>
+          </div>
         </div>
-      </div>
+      </ThemeProvider>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <ThemeProvider>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex transition-colors duration-200">
       {/* Sidebar */}
       <Sidebar 
         activeSection={activeSection} 
@@ -223,49 +251,155 @@ function App() {
       {/* Main Content */}
       <div className="flex-1 lg:ml-64">
         {/* Header */}
-        <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-          <div className="px-4 sm:px-6 py-4">
+        <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40 transition-colors duration-200">
+          <div className="px-4 sm:px-6 py-3">
             <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-3">
                 {/* Mobile Menu Button */}
                 <button
                   className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
                   onClick={() => setIsMobileOpen(true)}
                 >
-                  <Menu size={20} className="text-gray-600" />
+                  <Menu size={18} className="text-gray-600" />
                 </button>
                 
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                    {activeSection === 'dashboard' ? 'Dashboard Overview' : 
+                  <h1 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
+                    {activeSection === 'dashboard' ? 'Dashboard' : 
                      activeSection.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
                   </h1>
-                  <p className="text-sm text-gray-600 mt-1 hidden sm:block">
-                    {activeSection === 'dashboard' ? 'Car Rental Management System' : 
-                     `Manage your ${activeSection.replace('-', ' ')}`}
+                  <p className="text-xs text-gray-600 dark:text-gray-400 hidden sm:block">
+                    {activeSection === 'dashboard' ? 'Car Rental Management' : 
+                     `Manage ${activeSection.replace('-', ' ')}`}
                   </p>
                 </div>
               </div>
-              <div className="flex items-center space-x-4">
-                <div className="text-right hidden sm:block">
-                  <p className="text-sm font-medium text-gray-900">
-                    {new Date().toLocaleDateString('en-US', { 
-                      weekday: 'long', 
-                      year: 'numeric', 
-                      month: 'long', 
-                      day: 'numeric' 
-                    })}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Last updated: {new Date().toLocaleTimeString()}
-                  </p>
+              
+              <div className="flex items-center space-x-3">
+                {/* Notifications */}
+                <div className="relative dropdown-container">
+                  <button
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <Bell size={18} />
+                    {notifications.some(n => n.unread) && (
+                      <span className="absolute -top-1 -right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+                        {notifications.filter(n => n.unread).length}
+                      </span>
+                    )}
+                  </button>
+                  
+                  {/* Notifications Dropdown */}
+                  {showNotifications && (
+                    <div className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
+                      <div className="px-4 py-2 border-b border-gray-100 dark:border-gray-700">
+                        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Notifications</h3>
+                      </div>
+                      <div className="max-h-64 overflow-y-auto">
+                        {notifications.map((notification) => (
+                          <div key={notification.id} className={`px-4 py-3 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors border-l-2 ${notification.unread ? 'border-l-blue-500 bg-blue-50/30 dark:bg-blue-900/20' : 'border-l-transparent'}`}>
+                            <p className="text-sm text-gray-900 dark:text-white">{notification.message}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{notification.time}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-700">
+                        <button
+                          onClick={() => setActiveSection('notifications')}
+                          className="text-xs text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium"
+                        >
+                          View all notifications
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                {/* Mobile date */}
-                <div className="text-right sm:hidden">
-                  <p className="text-xs font-medium text-gray-900">
+
+                {/* User Profile Dropdown */}
+                <div className="relative dropdown-container">
+                  <button
+                    onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                    className="flex items-center space-x-2 p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    <div className="w-7 h-7 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                      <User size={14} className="text-white" />
+                    </div>
+                    <div className="hidden sm:block text-left">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name || 'Admin User'}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email || 'admin@lezgo.com'}</p>
+                    </div>
+                    <ChevronDown size={14} className={`transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* User Dropdown */}
+                  {userDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 py-2 z-50">
+                      <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                            <User size={18} className="text-white" />
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name || 'Admin User'}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email || 'admin@lezgo.com'}</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="py-1">
+                        <button
+                          onClick={() => {
+                            setActiveSection('user-management');
+                            setUserDropdownOpen(false);
+                          }}
+                          className="flex items-center space-x-3 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          <User size={16} className="text-gray-400 dark:text-gray-500" />
+                          <span>Profile Settings</span>
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            setActiveSection('settings');
+                            setUserDropdownOpen(false);
+                          }}
+                          className="flex items-center space-x-3 w-full px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          <Settings size={16} className="text-gray-400 dark:text-gray-500" />
+                          <span>Settings</span>
+                        </button>
+                      </div>
+                      
+                      <div className="border-t border-gray-100 dark:border-gray-700 pt-1">
+                        <button
+                          onClick={() => {
+                            handleLogout();
+                            setUserDropdownOpen(false);
+                          }}
+                          className="flex items-center space-x-3 w-full px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                        >
+                          <LogOut size={16} className="text-red-500 dark:text-red-400" />
+                          <span>Sign Out</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Date/Time - Compact */}
+                <div className="hidden lg:block text-right">
+                  <p className="text-xs font-medium text-gray-900 dark:text-white">
                     {new Date().toLocaleDateString('en-US', { 
                       month: 'short', 
-                      day: 'numeric' 
+                      day: 'numeric',
+                      year: 'numeric'
+                    })}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {new Date().toLocaleTimeString('en-US', { 
+                      hour: '2-digit', 
+                      minute: '2-digit' 
                     })}
                   </p>
                 </div>
@@ -289,6 +423,7 @@ function App() {
         </footer>
       </div>
     </div>
+    </ThemeProvider>
   );
 }
 
