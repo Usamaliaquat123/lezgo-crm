@@ -12,6 +12,7 @@ import UserManagementPage from './pages/UserManagementPage';
 import AnalyticsPage from './pages/AnalyticsPage';
 import PaymentsPage from './pages/PaymentsPage';
 import NotificationsPage from './pages/NotificationsPage';
+import PushNotificationPage from './pages/PushNotificationPage';
 import ParkingProofsPage from './pages/ParkingProofsPage';
 import SettingsPage from './pages/SettingsPage';
 import LoginPage from './pages/LoginPage';
@@ -195,6 +196,8 @@ function App() {
         return <PaymentsPage />;
       case 'notifications':
         return <NotificationsPage />;
+      case 'push-notifications':
+        return <PushNotificationPage />;
       case 'settings':
         return <SettingsPage />;
       default:

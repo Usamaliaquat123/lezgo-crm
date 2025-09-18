@@ -71,18 +71,18 @@ const Sidebar = ({ activeSection, setActiveSection, isMobileOpen, setIsMobileOpe
       icon: BarChart3,
       color: 'text-pink-600'
     },
-    {
-      id: 'payments',
-      label: 'Payments',
-      icon: CreditCard,
-      color: 'text-emerald-600'
-    },
-    {
-      id: 'notifications',
-      label: 'Notifications',
-      icon: Bell,
-      color: 'text-yellow-600'
-    }
+     {
+       id: 'payments',
+       label: 'Payments',
+       icon: CreditCard,
+       color: 'text-emerald-600'
+     },
+     {
+       id: 'push-notifications',
+       label: 'Push Notifications',
+       icon: Bell,
+       color: 'text-yellow-600'
+     }
   ];
 
   const bottomMenuItems = [
