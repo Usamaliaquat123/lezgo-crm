@@ -1,19 +1,24 @@
 import React, { useState } from 'react';
-import { Car, Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react';
+import { Car, Eye, EyeOff, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
-const LoginPage = ({ onLogin }) => {
+const LoginPage = () => {
+  const { login, forgotPassword, loading, error, clearError } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
-    password: ''
+    password: '',
+    rememberMe: false
   });
-  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [showForgotPassword, setShowForgotPassword] = useState(false); 
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+  const [forgotPasswordMessage, setForgotPasswordMessage] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
     setErrors({});
+    clearError();
 
     // Basic validation
     const newErrors = {};
@@ -28,23 +33,56 @@ const LoginPage = ({ onLogin }) => {
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
-      setIsLoading(false);
       return;
     }
 
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      onLogin(formData);
-    }, 1500);
+    const result = await login(formData);
+    
+    if (!result.success) {
+      if (result.attemptsRemaining !== undefined) {
+        setErrors({ 
+          general: `${result.message} (${result.attemptsRemaining} attempts remaining)` 
+        });
+      } else {
+        setErrors({ general: result.message });
+      }
+    }
+  };
+
+  const handleForgotPassword = async (e) => {
+    e.preventDefault();
+    
+    if (!forgotPasswordEmail) {
+      setErrors({ forgotEmail: 'Email is required' });
+      return;
+    }
+
+    if (!/\S+@\S+\.\S+/.test(forgotPasswordEmail)) {
+      setErrors({ forgotEmail: 'Email is invalid' });
+      return;
+    }
+
+    try {
+      const result = await forgotPassword(forgotPasswordEmail);
+      
+      if (result.success) {
+        setForgotPasswordMessage('If an account with that email exists, we have sent a password reset link.');
+        setErrors({});
+      } else {
+        setErrors({ forgotEmail: result.message || 'Failed to send reset email. Please try again.' });
+      }
+    } catch (error) {
+      setErrors({ forgotEmail: 'Failed to send reset email. Please try again.' });
+    }
   };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
+    
     // Clear error when user starts typing
     if (errors[name]) {
       setErrors(prev => ({
@@ -52,7 +90,118 @@ const LoginPage = ({ onLogin }) => {
         [name]: ''
       }));
     }
+    if (errors.general) {
+      setErrors(prev => ({
+        ...prev,
+        general: ''
+      }));
+    }
   };
+
+  const handleForgotEmailChange = (e) => {
+    setForgotPasswordEmail(e.target.value);
+    if (errors.forgotEmail) {
+      setErrors(prev => ({
+        ...prev,
+        forgotEmail: ''
+      }));
+    }
+  };
+
+  if (showForgotPassword) {
+    return (
+      <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+        <div className="w-full lg:w-1/2 bg-white dark:bg-gray-800 flex items-center justify-center p-8 transition-colors duration-200">
+          <div className="max-w-md w-full">
+            {/* Logo and Brand */}
+            <div className="mb-8">
+              <div className="flex items-center mb-8">
+                <div className="w-8 h-8 bg-blue-600 rounded flex items-center justify-center mr-3">
+                  <Car className="text-white" size={20} />
+                </div>
+                <span className="text-gray-900 dark:text-white text-xl font-bold">LezGo</span>
+              </div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Reset Password</h1>
+              <p className="text-gray-600 dark:text-gray-400">
+                Enter your email address and we'll send you a link to reset your password
+              </p>
+            </div>
+
+            {forgotPasswordMessage ? (
+              <div className="mb-6 p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
+                <p className="text-green-800 dark:text-green-200 text-sm">{forgotPasswordMessage}</p>
+              </div>
+            ) : (
+              <form onSubmit={handleForgotPassword} className="space-y-6">
+                <div>
+                  <label htmlFor="forgotEmail" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    id="forgotEmail"
+                    name="forgotEmail"
+                    type="email"
+                    value={forgotPasswordEmail}
+                    onChange={handleForgotEmailChange}
+                    className={`w-full px-4 py-3 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all ${
+                      errors.forgotEmail ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'hover:border-gray-400 dark:hover:border-gray-500'
+                    }`}
+                    placeholder="Enter your email address"
+                  />
+                  {errors.forgotEmail && (
+                    <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.forgotEmail}</p>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                >
+                  {loading ? (
+                    <>
+                      <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                      <span>Sending...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Mail size={16} />
+                      <span>Send Reset Link</span>
+                    </>
+                  )}
+                </button>
+              </form>
+            )}
+
+            <div className="mt-6 text-center">
+              <button
+                onClick={() => {
+                  setShowForgotPassword(false);
+                  setForgotPasswordMessage('');
+                  setErrors({});
+                }}
+                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium"
+              >
+                ← Back to Sign In
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Right Panel - Same as login */}
+        <div className="hidden lg:block lg:w-1/2 bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-700 dark:to-gray-800">
+          <div className="h-full flex items-center justify-center p-12">
+            <div className="max-w-lg text-center">
+              <h2 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Secure Access</h2>
+              <p className="text-xl text-gray-600 dark:text-gray-300">
+                We'll help you get back into your account securely
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
@@ -72,6 +221,16 @@ const LoginPage = ({ onLogin }) => {
               Sign in to access your LezGo dashboard
             </p>
           </div>
+
+          {/* Error Display */}
+          {(error || errors.general) && (
+            <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-start space-x-3">
+              <AlertCircle className="text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" size={16} />
+              <p className="text-red-800 dark:text-red-200 text-sm">
+                {error || errors.general}
+              </p>
+            </div>
+          )}
 
           {/* Login Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -134,17 +293,20 @@ const LoginPage = ({ onLogin }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
-                  id="remember-me"
-                  name="remember-me"
+                  id="rememberMe"
+                  name="rememberMe"
                   type="checkbox"
+                  checked={formData.rememberMe}
+                  onChange={handleInputChange}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                <label htmlFor="rememberMe" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
                   Remember me
                 </label>
               </div>
               <button
                 type="button"
+                onClick={() => setShowForgotPassword(true)}
                 className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors font-medium"
               >
                 Forgot password?
@@ -154,10 +316,10 @@ const LoginPage = ({ onLogin }) => {
             {/* Login Button */}
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={loading}
               className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
             >
-              {isLoading ? (
+              {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                   <span>Signing in...</span>
@@ -174,10 +336,10 @@ const LoginPage = ({ onLogin }) => {
           {/* Divider */}
           <div className="mt-8 relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-300" />
+              <div className="w-full border-t border-gray-300 dark:border-gray-600" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+              <span className="px-2 bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-400">Or continue with</span>
             </div>
           </div>
 
@@ -205,6 +367,16 @@ const LoginPage = ({ onLogin }) => {
               </svg>
               <span className="ml-2">Facebook</span>
             </button>
+          </div>
+
+          {/* Demo Credentials */}
+          <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <p className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Demo Credentials:</p>
+            <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
+              <p><strong>Super Admin:</strong> admin@lezgo.com / admin123</p>
+              <p><strong>Manager:</strong> manager@lezgo.com / manager123</p>
+              <p><strong>Agent:</strong> agent@lezgo.com / agent123</p>
+            </div>
           </div>
         </div>
       </div>

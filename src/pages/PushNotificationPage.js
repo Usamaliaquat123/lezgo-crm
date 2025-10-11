@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Send, 
   Bell, 
@@ -18,8 +18,11 @@ import {
   Search,
 } from 'lucide-react';
 import NotificationTemplates from '../components/NotificationTemplates';
+import apiClient, { handleApiError } from '../utils/apiClient';
+import { useAuth } from '../contexts/AuthContext';
 
 const PushNotificationPage = () => {
+  const { user, hasAnyRole } = useAuth();
   const [activeTab, setActiveTab] = useState('send');
   const [notificationForm, setNotificationForm] = useState({
     title: '',
@@ -34,46 +37,67 @@ const PushNotificationPage = () => {
     imageUrl: ''
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [stats, setStats] = useState(null);
+  const [notificationHistory, setNotificationHistory] = useState([]);
+  const [templates, setTemplates] = useState([]);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [templatesLoading, setTemplatesLoading] = useState(false);
 
-  // Mock data for notification history
-  const notificationHistory = [
-    {
-      id: 1,
-      title: 'New Car Available',
-      message: 'Check out our latest BMW X5 available for rent!',
-      targetAudience: 'All Users',
-      sentAt: '2024-01-15 10:30 AM',
-      status: 'delivered',
-      recipients: 1250,
-      opened: 890,
-      clicked: 156,
-      category: 'promotion'
-    },
-    {
-      id: 2,
-      title: 'Booking Reminder',
-      message: 'Your booking starts in 1 hour. Please arrive on time.',
-      targetAudience: 'Active Bookings',
-      sentAt: '2024-01-15 09:15 AM',
-      status: 'delivered',
-      recipients: 45,
-      opened: 42,
-      clicked: 38,
-      category: 'reminder'
-    },
-    {
-      id: 3,
-      title: 'Maintenance Update',
-      message: 'Some vehicles will be unavailable due to scheduled maintenance.',
-      targetAudience: 'All Users',
-      sentAt: '2024-01-14 06:00 PM',
-      status: 'delivered',
-      recipients: 1250,
-      opened: 756,
-      clicked: 89,
-      category: 'announcement'
+  // Fetch data on component mount
+  useEffect(() => {
+    fetchStats();
+    if (activeTab === 'history') {
+      fetchNotificationHistory();
+    } else if (activeTab === 'templates') {
+      fetchTemplates();
     }
-  ];
+  }, [activeTab]);
+
+  const fetchStats = async () => {
+    try {
+      const response = await apiClient.getNotificationStats();
+      if (response.success) {
+        setStats(response.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
+    }
+  };
+
+  const fetchNotificationHistory = async () => {
+    setHistoryLoading(true);
+    try {
+      const response = await apiClient.getNotifications({
+        page: 1,
+        limit: 20,
+        sortBy: 'sentAt',
+        sortOrder: 'desc'
+      });
+      if (response.success) {
+        setNotificationHistory(response.data.notifications);
+      }
+    } catch (error) {
+      setError(handleApiError(error));
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
+
+  const fetchTemplates = async () => {
+    setTemplatesLoading(true);
+    try {
+      const response = await apiClient.getNotificationTemplates();
+      if (response.success) {
+        setTemplates(response.data.templates);
+      }
+    } catch (error) {
+      setError(handleApiError(error));
+    } finally {
+      setTemplatesLoading(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -81,30 +105,45 @@ const PushNotificationPage = () => {
       ...prev,
       [name]: value
     }));
+    // Clear error when user starts typing
+    if (error) setError('');
   };
 
   const handleSendNotification = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError('');
+    setSuccess('');
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const response = await apiClient.sendNotification(notificationForm);
+      
+      if (response.success) {
+        setSuccess(response.message);
+        // Reset form
+        setNotificationForm({
+          title: '',
+          message: '',
+          targetAudience: 'all',
+          scheduleType: 'now',
+          scheduleDate: '',
+          scheduleTime: '',
+          priority: 'normal',
+          category: 'general',
+          actionUrl: '',
+          imageUrl: ''
+        });
+        // Refresh stats and history
+        fetchStats();
+        if (activeTab === 'history') {
+          fetchNotificationHistory();
+        }
+      }
+    } catch (error) {
+      setError(handleApiError(error));
+    } finally {
       setIsLoading(false);
-      // Reset form
-      setNotificationForm({
-        title: '',
-        message: '',
-        targetAudience: 'all',
-        scheduleType: 'now',
-        scheduleDate: '',
-        scheduleTime: '',
-        priority: 'normal',
-        category: 'general',
-        actionUrl: '',
-        imageUrl: ''
-      });
-      alert('Notification sent successfully!');
-    }, 2000);
+    }
   };
 
   const handleSelectTemplate = (template) => {
@@ -112,7 +151,8 @@ const PushNotificationPage = () => {
       ...prev,
       title: template.title,
       message: template.message,
-      category: template.category
+      category: template.category,
+      priority: template.priority || 'normal'
     }));
     setActiveTab('send');
   };
@@ -145,6 +185,23 @@ const PushNotificationPage = () => {
     }
   };
 
+  // Check permissions
+  if (!hasAnyRole(['Admin', 'Manager'])) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <AlertCircle className="mx-auto h-12 w-12 text-red-500 mb-4" />
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            Access Denied
+          </h3>
+          <p className="text-gray-500 dark:text-gray-400">
+            You don't have permission to access push notifications.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -156,13 +213,34 @@ const PushNotificationPage = () => {
         </div>
       </div>
 
+      {/* Error/Success Messages */}
+      {error && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+          <div className="flex items-start">
+            <AlertCircle className="text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" size={16} />
+            <p className="ml-3 text-red-800 dark:text-red-200 text-sm">{error}</p>
+          </div>
+        </div>
+      )}
+
+      {success && (
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+          <div className="flex items-start">
+            <CheckCircle className="text-green-500 dark:text-green-400 flex-shrink-0 mt-0.5" size={16} />
+            <p className="ml-3 text-green-800 dark:text-green-200 text-sm">{success}</p>
+          </div>
+        </div>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Sent</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">2,847</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {stats ? stats.totalSent.toLocaleString() : '...'}
+              </p>
             </div>
             <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-lg">
               <Send className="text-blue-600 dark:text-blue-400" size={20} />
@@ -170,7 +248,9 @@ const PushNotificationPage = () => {
           </div>
           <div className="mt-2 flex items-center text-sm">
             <TrendingUp className="text-green-500 mr-1" size={14} />
-            <span className="text-green-600 dark:text-green-400">+12%</span>
+            <span className="text-green-600 dark:text-green-400">
+              +{stats ? stats.growth?.totalSent : 0}%
+            </span>
             <span className="text-gray-500 dark:text-gray-400 ml-1">vs last month</span>
           </div>
         </div>
@@ -179,7 +259,9 @@ const PushNotificationPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Open Rate</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">68.5%</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {stats ? `${stats.openRate}%` : '...'}
+              </p>
             </div>
             <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-lg">
               <Eye className="text-green-600 dark:text-green-400" size={20} />
@@ -187,7 +269,9 @@ const PushNotificationPage = () => {
           </div>
           <div className="mt-2 flex items-center text-sm">
             <TrendingUp className="text-green-500 mr-1" size={14} />
-            <span className="text-green-600 dark:text-green-400">+5.2%</span>
+            <span className="text-green-600 dark:text-green-400">
+              +{stats ? stats.growth?.openRate : 0}%
+            </span>
             <span className="text-gray-500 dark:text-gray-400 ml-1">vs last month</span>
           </div>
         </div>
@@ -196,7 +280,9 @@ const PushNotificationPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Click Rate</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">12.3%</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {stats ? `${stats.clickRate}%` : '...'}
+              </p>
             </div>
             <div className="p-3 bg-purple-100 dark:bg-purple-900/20 rounded-lg">
               <Target className="text-purple-600 dark:text-purple-400" size={20} />
@@ -204,7 +290,9 @@ const PushNotificationPage = () => {
           </div>
           <div className="mt-2 flex items-center text-sm">
             <TrendingUp className="text-green-500 mr-1" size={14} />
-            <span className="text-green-600 dark:text-green-400">+2.1%</span>
+            <span className="text-green-600 dark:text-green-400">
+              +{stats ? stats.growth?.clickRate : 0}%
+            </span>
             <span className="text-gray-500 dark:text-gray-400 ml-1">vs last month</span>
           </div>
         </div>
@@ -213,7 +301,9 @@ const PushNotificationPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Users</p>
-              <p className="text-2xl font-bold text-gray-900 dark:text-white">1,250</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                {stats ? stats.activeUsers.toLocaleString() : '...'}
+              </p>
             </div>
             <div className="p-3 bg-orange-100 dark:bg-orange-900/20 rounded-lg">
               <Users className="text-orange-600 dark:text-orange-400" size={20} />
@@ -221,7 +311,9 @@ const PushNotificationPage = () => {
           </div>
           <div className="mt-2 flex items-center text-sm">
             <TrendingUp className="text-green-500 mr-1" size={14} />
-            <span className="text-green-600 dark:text-green-400">+8.7%</span>
+            <span className="text-green-600 dark:text-green-400">
+              +{stats ? stats.growth?.activeUsers : 0}%
+            </span>
             <span className="text-gray-500 dark:text-gray-400 ml-1">vs last month</span>
           </div>
         </div>
@@ -502,7 +594,19 @@ const PushNotificationPage = () => {
           )}
 
           {activeTab === 'templates' && (
-            <NotificationTemplates onSelectTemplate={handleSelectTemplate} />
+            <div>
+              {templatesLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="ml-3 text-gray-600 dark:text-gray-400">Loading templates...</span>
+                </div>
+              ) : (
+                <NotificationTemplates 
+                  templates={templates}
+                  onSelectTemplate={handleSelectTemplate} 
+                />
+              )}
+            </div>
           )}
 
           {activeTab === 'history' && (
@@ -526,82 +630,101 @@ const PushNotificationPage = () => {
               </div>
 
               {/* Notifications List */}
-              <div className="space-y-4">
-                {notificationHistory.map((notification) => (
-                  <div key={notification.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                            {notification.title}
-                          </h3>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(notification.category)}`}>
-                            {notification.category}
-                          </span>
-                          <div className="flex items-center space-x-1">
-                            {getStatusIcon(notification.status)}
-                            <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">
-                              {notification.status}
+              {historyLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                  <span className="ml-3 text-gray-600 dark:text-gray-400">Loading notifications...</span>
+                </div>
+              ) : notificationHistory.length === 0 ? (
+                <div className="text-center py-12">
+                  <Bell className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    No notifications yet
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400">
+                    Start by sending your first notification to your users.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {notificationHistory.map((notification) => (
+                    <div key={notification.id} className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 border border-gray-200 dark:border-gray-600">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <div className="flex items-center space-x-3 mb-2">
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                              {notification.title}
+                            </h3>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(notification.category)}`}>
+                              {notification.category}
                             </span>
+                            <div className="flex items-center space-x-1">
+                              {getStatusIcon(notification.status)}
+                              <span className="text-sm text-gray-600 dark:text-gray-400 capitalize">
+                                {notification.status}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <p className="text-gray-600 dark:text-gray-400 mb-3">
+                            {notification.message}
+                          </p>
+                          
+                          <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
+                            <span>Target: {notification.targetAudience}</span>
+                            <span>Sent: {new Date(notification.sentAt).toLocaleString()}</span>
+                            <span>Recipients: {notification.recipients?.toLocaleString()}</span>
                           </div>
                         </div>
                         
-                        <p className="text-gray-600 dark:text-gray-400 mb-3">
-                          {notification.message}
-                        </p>
-                        
-                        <div className="flex items-center space-x-6 text-sm text-gray-500 dark:text-gray-400">
-                          <span>Target: {notification.targetAudience}</span>
-                          <span>Sent: {notification.sentAt}</span>
-                          <span>Recipients: {notification.recipients}</span>
+                        <div className="flex items-center space-x-2 ml-4">
+                          <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                            <Edit size={16} />
+                          </button>
+                          <button className="p-2 text-gray-400 hover:text-red-600 transition-colors">
+                            <Trash2 size={16} />
+                          </button>
                         </div>
                       </div>
                       
-                      <div className="flex items-center space-x-2 ml-4">
-                        <button className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-                          <Edit size={16} />
-                        </button>
-                        <button className="p-2 text-gray-400 hover:text-red-600 transition-colors">
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
+                      {/* Analytics */}
+                      {notification.opened !== undefined && (
+                        <div className="mt-4 grid grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-gray-600">
+                          <div className="text-center">
+                            <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                              {notification.opened?.toLocaleString()}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">Opened</div>
+                            <div className="text-xs text-green-600 dark:text-green-400">
+                              {notification.recipients ? ((notification.opened / notification.recipients) * 100).toFixed(1) : 0}%
+                            </div>
+                          </div>
+                          
+                          <div className="text-center">
+                            <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                              {notification.clicked?.toLocaleString()}
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">Clicked</div>
+                            <div className="text-xs text-blue-600 dark:text-blue-400">
+                              {notification.recipients ? ((notification.clicked / notification.recipients) * 100).toFixed(1) : 0}%
+                            </div>
+                          </div>
+                          
+                          <div className="text-center">
+                            <div className="text-lg font-semibold text-gray-900 dark:text-white">
+                              {notification.opened && notification.clicked ? ((notification.clicked / notification.opened) * 100).toFixed(1) : 0}%
+                            </div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">CTR</div>
+                            <div className="text-xs text-purple-600 dark:text-purple-400">
+                              Click-through rate
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    
-                    {/* Analytics */}
-                    <div className="mt-4 grid grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-gray-600">
-                      <div className="text-center">
-                        <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                          {notification.opened}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">Opened</div>
-                        <div className="text-xs text-green-600 dark:text-green-400">
-                          {((notification.opened / notification.recipients) * 100).toFixed(1)}%
-                        </div>
-                      </div>
-                      
-                      <div className="text-center">
-                        <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                          {notification.clicked}
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">Clicked</div>
-                        <div className="text-xs text-blue-600 dark:text-blue-400">
-                          {((notification.clicked / notification.recipients) * 100).toFixed(1)}%
-                        </div>
-                      </div>
-                      
-                      <div className="text-center">
-                        <div className="text-lg font-semibold text-gray-900 dark:text-white">
-                          {((notification.clicked / notification.opened) * 100).toFixed(1)}%
-                        </div>
-                        <div className="text-sm text-gray-500 dark:text-gray-400">CTR</div>
-                        <div className="text-xs text-purple-600 dark:text-purple-400">
-                          Click-through rate
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>

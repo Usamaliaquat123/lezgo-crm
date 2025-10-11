@@ -7,6 +7,20 @@ import CarMap from '../components/CarMap';
 import UserTracker from '../components/UserTracker';
 
 const DashboardPage = ({ data }) => {
+  // Show loading state while data is being fetched
+  if (!data) {
+    return (
+      <div className="space-y-8">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-300">Loading dashboard data...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       {/* Stats Cards */}

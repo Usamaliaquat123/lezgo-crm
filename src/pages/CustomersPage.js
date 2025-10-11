@@ -1,118 +1,130 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, Phone, Mail, MapPin, Plus, Search, Filter, Eye, Edit, X, Calendar, CreditCard, Car, Clock } from 'lucide-react';
+import { customersAPI } from '../utils/crmAPI';
 
 const CustomersPage = () => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [customers, setCustomers] = useState([]);
+  const [customerStats, setCustomerStats] = useState({
+    totalCustomers: 0,
+    activeCustomers: 0,
+    newThisWeek: 0,
+    premiumMembers: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    page: 1,
+    limit: 20,
+    search: '',
+    status: '',
+    location: ''
+  });
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    hasNextPage: false,
+    hasPrevPage: false
+  });
 
-  const customers = [
-    {
-      id: 'CU001',
-      name: 'Ahmed Al-Rashid',
-      email: 'ahmed.rashid@email.com',
-      phone: '+971 50 123 4567',
-      location: 'Dubai Marina',
-      totalBookings: 12,
-      totalSpent: '$2,840',
-      status: 'active',
-      joinDate: '2023-08-15',
-      lastBooking: '2024-01-15',
-      preferredPayment: 'Credit Card',
-      emergencyContact: '+971 50 123 4568',
-      drivingLicense: 'UAE-123456789',
-      nationality: 'UAE',
-      age: 32,
-      favoriteCarType: 'SUV',
-      totalDistance: '2,450 km',
-      averageRating: 4.8
-    },
-    {
-      id: 'CU002',
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@email.com',
-      phone: '+971 55 987 6543',
-      location: 'Downtown Dubai',
-      totalBookings: 8,
-      totalSpent: '$1,920',
-      status: 'active',
-      joinDate: '2023-09-22',
-      lastBooking: '2024-01-12',
-      preferredPayment: 'Debit Card',
-      emergencyContact: '+971 55 987 6544',
-      drivingLicense: 'UAE-987654321',
-      nationality: 'UK',
-      age: 28,
-      favoriteCarType: 'Sedan',
-      totalDistance: '1,890 km',
-      averageRating: 4.6
-    },
-    {
-      id: 'CU003',
-      name: 'Mohammed Hassan',
-      email: 'mohammed.hassan@email.com',
-      phone: '+971 52 456 7890',
-      location: 'Jumeirah',
-      totalBookings: 15,
-      totalSpent: '$3,600',
-      status: 'premium',
-      joinDate: '2023-07-10',
-      lastBooking: '2024-01-18',
-      preferredPayment: 'Apple Pay',
-      emergencyContact: '+971 52 456 7891',
-      drivingLicense: 'UAE-456789123',
-      nationality: 'UAE',
-      age: 35,
-      favoriteCarType: 'Luxury',
-      totalDistance: '3,200 km',
-      averageRating: 4.9
-    },
-    {
-      id: 'CU004',
-      name: 'Emma Wilson',
-      email: 'emma.wilson@email.com',
-      phone: '+971 56 789 0123',
-      location: 'Business Bay',
-      totalBookings: 5,
-      totalSpent: '$1,200',
-      status: 'active',
-      joinDate: '2023-11-05',
-      lastBooking: '2024-01-08',
-      preferredPayment: 'PayPal',
-      emergencyContact: '+971 56 789 0124',
-      drivingLicense: 'UAE-789012345',
-      nationality: 'Canada',
-      age: 26,
-      favoriteCarType: 'Hatchback',
-      totalDistance: '980 km',
-      averageRating: 4.7
-    },
-    {
-      id: 'CU005',
-      name: 'Omar Abdullah',
-      email: 'omar.abdullah@email.com',
-      phone: '+971 54 234 5678',
-      location: 'Al Barsha',
-      totalBookings: 20,
-      totalSpent: '$4,800',
-      status: 'premium',
-      joinDate: '2023-06-18',
-      lastBooking: '2024-01-20',
-      preferredPayment: 'Cash',
-      emergencyContact: '+971 54 234 5679',
-      drivingLicense: 'UAE-234567890',
-      nationality: 'UAE',
-      age: 29,
-      favoriteCarType: 'Sports',
-      totalDistance: '4,100 km',
-      averageRating: 4.9
+  // Fetch customers data
+  const fetchCustomers = async () => {
+    try {
+      setLoading(true);
+      const response = await customersAPI.getCustomers(filters);
+      
+      if (response.success) {
+        setCustomers(response.data.customers);
+        setPagination(response.data.pagination);
+      } else {
+        setError(response.message || 'Failed to fetch customers');
+      }
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+      setError('Failed to fetch customers. Please try again.');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const customerStats = [
-    { label: 'Total Customers', value: 1247, color: 'blue' },
-    { label: 'Active This Month', value: 892, color: 'green' },
-    { label: 'New This Week', value: 23, color: 'orange' },
-    { label: 'Premium Members', value: 156, color: 'purple' }
-  ];
+  // Fetch customer statistics
+  const fetchCustomerStats = async () => {
+    try {
+      const response = await customersAPI.getCustomerStats();
+      
+      if (response.success) {
+        const { summary } = response.data;
+        setCustomerStats({
+          totalCustomers: summary.totalCustomers,
+          activeCustomers: summary.activeCustomers,
+          newThisWeek: summary.newThisMonth, // Using monthly as proxy for weekly
+          premiumMembers: summary.premiumCustomers
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching customer stats:', error);
+    }
+  };
+
+  // Load data on component mount and when filters change
+  useEffect(() => {
+    fetchCustomers();
+  }, [filters]);
+
+  useEffect(() => {
+    fetchCustomerStats();
+  }, []);
+
+  // Handle search
+  const handleSearch = (searchTerm) => {
+    setFilters(prev => ({
+      ...prev,
+      search: searchTerm,
+      page: 1
+    }));
+  };
+
+  // Handle filter changes
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value,
+      page: 1
+    }));
+  };
+
+  // Handle pagination
+  const handlePageChange = (newPage) => {
+    setFilters(prev => ({
+      ...prev,
+      page: newPage
+    }));
+  };
+
+  // Format customer data for display
+  const formatCustomerForDisplay = (customer) => ({
+    id: customer._id,
+    name: `${customer.name.first} ${customer.name.last}`,
+    email: customer.email,
+    phone: customer.phone,
+    location: customer.address?.city || 'N/A',
+    totalBookings: customer.bookingHistory?.length || 0,
+    totalSpent: `$${customer.totalSpent || 0}`,
+    status: customer.status.toLowerCase(),
+    joinDate: customer.createdAt,
+    lastBooking: customer.lastBookingDate || customer.createdAt,
+    preferredPayment: customer.preferences?.paymentMethod || 'N/A',
+    emergencyContact: customer.emergencyContact?.phone || 'N/A',
+    drivingLicense: customer.licenseNumber || 'N/A',
+    nationality: customer.nationality || 'N/A',
+    age: customer.dateOfBirth ? 
+      Math.floor((new Date() - new Date(customer.dateOfBirth)) / (365.25 * 24 * 60 * 60 * 1000)) : 
+      'N/A',
+    favoriteCarType: customer.preferences?.vehicleType || 'N/A',
+    totalDistance: `${customer.totalDistance || 0} km`,
+    averageRating: customer.rating || 4.5
+  });
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -127,6 +139,51 @@ const CustomersPage = () => {
     }
   };
 
+  const formatStatsForDisplay = () => [
+    { label: 'Total Customers', value: customerStats.totalCustomers, color: 'blue' },
+    { label: 'Active This Month', value: customerStats.activeCustomers, color: 'green' },
+    { label: 'New This Week', value: customerStats.newThisWeek, color: 'orange' },
+    { label: 'Premium Members', value: customerStats.premiumMembers, color: 'purple' }
+  ];
+
+  if (loading && customers.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-300">Loading customers...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="text-red-500 mb-4">
+              <X size={48} />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Customers</h3>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button 
+              onClick={() => {
+                setError(null);
+                fetchCustomers();
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -139,7 +196,7 @@ const CustomersPage = () => {
 
       {/* Customer Statistics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {customerStats.map((stat, index) => (
+        {formatStatsForDisplay().map((stat, index) => (
           <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -173,23 +230,33 @@ const CustomersPage = () => {
               type="text" 
               placeholder="Search customers by name, email, or phone..." 
               className="border-0 outline-none text-sm flex-1"
+              value={filters.search}
+              onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
           <div className="flex items-center space-x-2">
             <Filter className="text-gray-400" size={16} />
-            <select className="border border-gray-300 rounded-md px-3 py-1 text-sm">
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="premium">Premium</option>
-              <option value="inactive">Inactive</option>
+            <select 
+              className="border border-gray-300 rounded-md px-3 py-1 text-sm"
+              value={filters.status}
+              onChange={(e) => handleFilterChange('status', e.target.value)}
+            >
+              <option value="">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+              <option value="Suspended">Suspended</option>
             </select>
           </div>
-          <select className="border border-gray-300 rounded-md px-3 py-1 text-sm">
-            <option value="all">All Locations</option>
-            <option value="dubai-marina">Dubai Marina</option>
-            <option value="downtown">Downtown Dubai</option>
-            <option value="jumeirah">Jumeirah</option>
-            <option value="business-bay">Business Bay</option>
+          <select 
+            className="border border-gray-300 rounded-md px-3 py-1 text-sm"
+            value={filters.location}
+            onChange={(e) => handleFilterChange('location', e.target.value)}
+          >
+            <option value="">All Locations</option>
+            <option value="dubai">Dubai</option>
+            <option value="abu-dhabi">Abu Dhabi</option>
+            <option value="sharjah">Sharjah</option>
+            <option value="ajman">Ajman</option>
           </select>
         </div>
       </div>
@@ -211,72 +278,102 @@ const CustomersPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {customers.map((customer) => (
-                <tr key={customer.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="py-4 px-4">
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Users className="text-blue-600" size={16} />
+              {customers.map((customer) => {
+                const displayCustomer = formatCustomerForDisplay(customer);
+                return (
+                  <tr key={displayCustomer.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Users className="text-blue-600" size={16} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-semibold text-gray-900">{displayCustomer.name}</p>
+                          <p className="text-sm text-gray-500">{customer.customerNumber || displayCustomer.id}</p>
+                        </div>
                       </div>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-gray-900">{customer.name}</p>
-                        <p className="text-sm text-gray-500">{customer.id}</p>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <Mail size={14} className="text-gray-400 flex-shrink-0" />
+                          <span className="text-sm text-gray-900 truncate">{displayCustomer.email}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Phone size={14} className="text-gray-400 flex-shrink-0" />
+                          <span className="text-sm text-gray-600">{displayCustomer.phone}</span>
+                        </div>
                       </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="space-y-1">
+                    </td>
+                    <td className="py-4 px-4">
                       <div className="flex items-center space-x-2">
-                        <Mail size={14} className="text-gray-400 flex-shrink-0" />
-                        <span className="text-sm text-gray-900 truncate">{customer.email}</span>
+                        <MapPin size={14} className="text-gray-400" />
+                        <span className="text-sm text-gray-900">{displayCustomer.location}</span>
                       </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="text-center">
+                        <p className="text-lg font-semibold text-gray-900">{displayCustomer.totalBookings}</p>
+                        <p className="text-xs text-gray-500">bookings</p>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="text-lg font-semibold text-green-600">{displayCustomer.totalSpent}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(displayCustomer.status)}`}>
+                        {displayCustomer.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="text-sm text-gray-900">
+                        {new Date(displayCustomer.joinDate).toLocaleDateString()}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
                       <div className="flex items-center space-x-2">
-                        <Phone size={14} className="text-gray-400 flex-shrink-0" />
-                        <span className="text-sm text-gray-600">{customer.phone}</span>
+                        <button 
+                          onClick={() => setSelectedCustomer(displayCustomer)}
+                          className="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                        >
+                          <Eye size={16} />
+                        </button>
                       </div>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="flex items-center space-x-2">
-                      <MapPin size={14} className="text-gray-400" />
-                      <span className="text-sm text-gray-900">{customer.location}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="text-center">
-                      <p className="text-lg font-semibold text-gray-900">{customer.totalBookings}</p>
-                      <p className="text-xs text-gray-500">bookings</p>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className="text-lg font-semibold text-green-600">{customer.totalSpent}</span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(customer.status)}`}>
-                      {customer.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className="text-sm text-gray-900">
-                      {new Date(customer.joinDate).toLocaleDateString()}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="flex items-center space-x-2">
-                      <button 
-                        onClick={() => setSelectedCustomer(customer)}
-                        className="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
-                      >
-                        <Eye size={16} />
-                      </button>
-                
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {pagination.totalPages > 1 && (
+          <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+            <div className="text-sm text-gray-500">
+              Showing {((pagination.currentPage - 1) * filters.limit) + 1} to {Math.min(pagination.currentPage * filters.limit, pagination.totalItems)} of {pagination.totalItems} customers
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => handlePageChange(pagination.currentPage - 1)}
+                disabled={!pagination.hasPrevPage}
+                className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              <span className="text-sm text-gray-700">
+                Page {pagination.currentPage} of {pagination.totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(pagination.currentPage + 1)}
+                disabled={!pagination.hasNextPage}
+                className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Customer Detail Modal - Compact Design */}

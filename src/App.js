@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, DollarSign, Car, TrendingUp, Users, MapPin, CheckCircle, Clock, AlertTriangle, Menu, Bell, Settings, LogOut, User, ChevronDown } from 'lucide-react';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Sidebar from './components/Sidebar';
 import DashboardPage from './pages/DashboardPage';
 import CarControlsPage from './pages/CarControlsPage';
@@ -83,13 +84,12 @@ const generateMockData = () => {
 
 
 
-function App() {
+// Main App Component that uses authentication
+const AppContent = () => {
+  const { isAuthenticated, user, logout, loading } = useAuth();
   const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [activeSection, setActiveSection] = useState('dashboard');
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [notifications] = useState([
     { id: 1, message: 'New booking received', time: '2 min ago', unread: true },
@@ -99,32 +99,20 @@ function App() {
   const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
-    // Check for stored authentication
-    const storedAuth = localStorage.getItem('lezgo_auth');
-    if (storedAuth) {
-      setData(generateMockData());
-      const authData = JSON.parse(storedAuth);
-      setIsAuthenticated(true);
-      setUser(authData.user);
-    }
-
-    // Simulate API call
-    const fetchData = async () => {
-      setLoading(true);
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      setData(generateMockData());
-      setLoading(false);
-    };
-
+    // Fetch dashboard data when authenticated
     if (isAuthenticated) {
+      const fetchData = async () => {
+        // Simulate API call - replace with real API calls
+        // Reduced delay for better user experience
+        await new Promise(resolve => setTimeout(resolve, 100));
+        setData(generateMockData());
+      };
+
       fetchData();
       
-      // Automatic refresh disabled
+      // Auto-refresh disabled for now
       // const interval = setInterval(fetchData, 30000);
       // return () => clearInterval(interval);
-    } else {
-      setLoading(false);
     }
   }, [isAuthenticated]);
 
@@ -143,33 +131,9 @@ function App() {
     };
   }, []);
 
-  const handleLogin = (loginData) => {
-    // Simulate successful login
-    const userData = {
-      email: loginData.email,
-      name: loginData.email.split('@')[0],
-      role: 'admin'
-    };
-    
-    setUser(userData);
-    setIsAuthenticated(true);
-    setData(generateMockData());
-    setActiveSection('dashboard'); // Redirect to dashboard
-
-    // Store in localStorage
-    localStorage.setItem('lezgo_auth', JSON.stringify({
-      user: userData,
-      token: 'mock-jwt-token',
-      timestamp: Date.now()
-    }));
-  };
-
-
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setUser(null);
+  const handleLogout = async () => {
+    await logout();
     setActiveSection('dashboard');
-    localStorage.removeItem('lezgo_auth');
   };
 
   const renderContent = () => {
@@ -216,31 +180,22 @@ function App() {
 
   // Show login page if not authenticated
   if (!isAuthenticated) {
-    return (
-      <ThemeProvider>
-        <LoginPage 
-          onLogin={handleLogin}
-        />
-      </ThemeProvider>
-    );
+    return <LoginPage />;
   }
 
   if (loading) {
     return (
-      <ThemeProvider>
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center transition-colors duration-200">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-300">Loading dashboard...</p>
-          </div>
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center transition-colors duration-200">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">Loading dashboard...</p>
         </div>
-      </ThemeProvider>
+      </div>
     );
   }
 
   return (
-    <ThemeProvider>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex transition-colors duration-200">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex transition-colors duration-200">
       {/* Sidebar */}
       <Sidebar 
         activeSection={activeSection} 
@@ -329,8 +284,8 @@ function App() {
                       <User size={14} className="text-white" />
                     </div>
                     <div className="hidden sm:block text-left">
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name || 'Admin User'}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email || 'admin@lezgo.com'}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.profile?.firstName ? `${user.profile.firstName} ${user.profile.lastName}` : user?.email || 'User'}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{user?.role || 'User'}</p>
                     </div>
                     <ChevronDown size={14} className={`transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} />
                   </button>
@@ -344,8 +299,8 @@ function App() {
                             <User size={18} className="text-white" />
                           </div>
                           <div>
-                            <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.name || 'Admin User'}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email || 'admin@lezgo.com'}</p>
+                            <p className="text-sm font-medium text-gray-900 dark:text-white">{user?.profile?.firstName ? `${user.profile.firstName} ${user.profile.lastName}` : user?.email || 'User'}</p>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">{user?.email || 'user@example.com'}</p>
                           </div>
                         </div>
                       </div>
@@ -426,6 +381,16 @@ function App() {
         </footer>
       </div>
     </div>
+  );
+};
+
+// Root App Component with Providers
+function App() {
+  return (
+    <ThemeProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
     </ThemeProvider>
   );
 }

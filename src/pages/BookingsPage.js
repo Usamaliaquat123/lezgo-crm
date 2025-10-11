@@ -1,153 +1,141 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Calendar, Clock, User, Car, Plus, Filter, Search, Eye, X, Phone, Mail, MapPin, CreditCard, AlertCircle } from 'lucide-react';
+import { bookingsAPI } from '../utils/crmAPI';
 
 const BookingsPage = () => {
   const [selectedBooking, setSelectedBooking] = useState(null);
+  const [bookings, setBookings] = useState([]);
+  const [bookingStats, setBookingStats] = useState({
+    totalBookings: 0,
+    activeBookings: 0,
+    pendingBookings: 0,
+    thisMonthBookings: 0
+  });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    page: 1,
+    limit: 20,
+    search: '',
+    status: '',
+    startDate: '',
+    endDate: ''
+  });
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    hasNextPage: false,
+    hasPrevPage: false
+  });
 
-  const bookings = [
-    {
-      id: 'BK001',
-      customer: 'Ahmed Al-Rashid',
-      customerPhone: '+971 50 123 4567',
-      customerEmail: 'ahmed.rashid@email.com',
-      car: 'Mitsubishi ASX (U47449)',
-      carModel: 'Mitsubishi ASX',
-      carPlate: 'U47449',
-      carColor: 'Silver',
-      carYear: '2022',
-      startDate: '2024-01-15',
-      endDate: '2024-01-17',
-      startTime: '10:00 AM',
-      endTime: '6:00 PM',
-      pickupLocation: 'Dubai Marina Mall',
-      dropoffLocation: 'Dubai Marina Mall',
-      status: 'active',
-      amount: '$240',
-      dailyRate: '$80',
-      duration: '3 days',
-      paymentMethod: 'Credit Card',
-      paymentStatus: 'Paid',
-      bookingDate: '2024-01-10',
-      notes: 'Customer requested GPS navigation system',
-      insurance: 'Full Coverage',
-      mileageLimit: '300 km/day'
-    },
-    {
-      id: 'BK002',
-      customer: 'Sarah Johnson',
-      customerPhone: '+971 55 987 6543',
-      customerEmail: 'sarah.j@email.com',
-      car: 'Tesla Model 3 (U47452)',
-      carModel: 'Tesla Model 3',
-      carPlate: 'U47452',
-      carColor: 'White',
-      carYear: '2023',
-      startDate: '2024-01-16',
-      endDate: '2024-01-18',
-      startTime: '9:00 AM',
-      endTime: '5:00 PM',
-      pickupLocation: 'Dubai International Airport',
-      dropoffLocation: 'Dubai International Airport',
-      status: 'confirmed',
-      amount: '$320',
-      dailyRate: '$160',
-      duration: '2 days',
-      paymentMethod: 'Credit Card',
-      paymentStatus: 'Paid',
-      bookingDate: '2024-01-12',
-      notes: 'Airport pickup required',
-      insurance: 'Full Coverage',
-      mileageLimit: 'Unlimited'
-    },
-    {
-      id: 'BK003',
-      customer: 'Mohammed Hassan',
-      customerPhone: '+971 50 234 5678',
-      customerEmail: 'mohammed.h@email.com',
-      car: 'BMW X3 (U47453)',
-      carModel: 'BMW X3',
-      carPlate: 'U47453',
-      carColor: 'Black',
-      carYear: '2022',
-      startDate: '2024-01-14',
-      endDate: '2024-01-16',
-      startTime: '2:00 PM',
-      endTime: '2:00 PM',
-      pickupLocation: 'Business Bay',
-      dropoffLocation: 'Business Bay',
-      status: 'completed',
-      amount: '$180',
-      dailyRate: '$90',
-      duration: '2 days',
-      paymentMethod: 'Cash',
-      paymentStatus: 'Paid',
-      bookingDate: '2024-01-08',
-      notes: 'Business client - VIP treatment',
-      insurance: 'Basic Coverage',
-      mileageLimit: '200 km/day'
-    },
-    {
-      id: 'BK004',
-      customer: 'Emma Wilson',
-      customerPhone: '+971 52 345 6789',
-      customerEmail: 'emma.w@email.com',
-      car: 'Toyota RAV4 (U47450)',
-      carModel: 'Toyota RAV4',
-      carPlate: 'U47450',
-      carColor: 'Red',
-      carYear: '2023',
-      startDate: '2024-01-18',
-      endDate: '2024-01-20',
-      startTime: '11:00 AM',
-      endTime: '11:00 AM',
-      pickupLocation: 'Dubai Mall',
-      dropoffLocation: 'Dubai Mall',
-      status: 'pending',
-      amount: '$200',
-      dailyRate: '$100',
-      duration: '2 days',
-      paymentMethod: 'Credit Card',
-      paymentStatus: 'Pending',
-      bookingDate: '2024-01-15',
-      notes: 'First-time customer',
-      insurance: 'Full Coverage',
-      mileageLimit: '250 km/day'
-    },
-    {
-      id: 'BK005',
-      customer: 'Omar Abdullah',
-      customerPhone: '+971 50 456 7890',
-      customerEmail: 'omar.a@email.com',
-      car: 'Audi Q5 (U47456)',
-      carModel: 'Audi Q5',
-      carPlate: 'U47456',
-      carColor: 'Blue',
-      carYear: '2023',
-      startDate: '2024-01-17',
-      endDate: '2024-01-19',
-      startTime: '8:00 AM',
-      endTime: '8:00 AM',
-      pickupLocation: 'JBR Beach',
-      dropoffLocation: 'JBR Beach',
-      status: 'confirmed',
-      amount: '$280',
-      dailyRate: '$140',
-      duration: '2 days',
-      paymentMethod: 'Bank Transfer',
-      paymentStatus: 'Paid',
-      bookingDate: '2024-01-13',
-      notes: 'Luxury package requested',
-      insurance: 'Premium Coverage',
-      mileageLimit: 'Unlimited'
+  // Fetch bookings data
+  const fetchBookings = async () => {
+    try {
+      setLoading(true);
+      const response = await bookingsAPI.getBookings(filters);
+      
+      if (response.success) {
+        setBookings(response.data.bookings);
+        setPagination(response.data.pagination);
+      } else {
+        setError(response.message || 'Failed to fetch bookings');
+      }
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+      setError('Failed to fetch bookings. Please try again.');
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
-  const bookingStats = [
-    { label: 'Total Bookings', value: 156, color: 'blue' },
-    { label: 'Active Rentals', value: 8, color: 'green' },
-    { label: 'Pending', value: 3, color: 'orange' },
-    { label: 'This Month', value: 42, color: 'purple' }
-  ];
+  // Fetch booking statistics
+  const fetchBookingStats = async () => {
+    try {
+      const response = await bookingsAPI.getBookingStats();
+      
+      if (response.success) {
+        const { summary } = response.data;
+        setBookingStats({
+          totalBookings: summary.totalBookings,
+          activeBookings: summary.activeBookings,
+          pendingBookings: summary.pendingBookings,
+          thisMonthBookings: summary.thisMonthBookings
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching booking stats:', error);
+    }
+  };
+
+  // Load data on component mount and when filters change
+  useEffect(() => {
+    fetchBookings();
+  }, [filters]);
+
+  useEffect(() => {
+    fetchBookingStats();
+  }, []);
+
+  // Handle search
+  const handleSearch = (searchTerm) => {
+    setFilters(prev => ({
+      ...prev,
+      search: searchTerm,
+      page: 1
+    }));
+  };
+
+  // Handle filter changes
+  const handleFilterChange = (key, value) => {
+    setFilters(prev => ({
+      ...prev,
+      [key]: value,
+      page: 1
+    }));
+  };
+
+  // Handle pagination
+  const handlePageChange = (newPage) => {
+    setFilters(prev => ({
+      ...prev,
+      page: newPage
+    }));
+  };
+
+  // Format booking data for display
+  const formatBookingForDisplay = (booking) => ({
+    id: booking._id,
+    bookingNumber: booking.bookingNumber,
+    customer: booking.customer?.name ? 
+      `${booking.customer.name.first} ${booking.customer.name.last}` : 
+      'Unknown Customer',
+    customerPhone: booking.customer?.phone || 'N/A',
+    customerEmail: booking.customer?.email || 'N/A',
+    car: booking.vehicle ? 
+      `${booking.vehicle.make} ${booking.vehicle.model} (${booking.vehicle.licensePlate})` : 
+      'Unknown Vehicle',
+    carModel: booking.vehicle ? `${booking.vehicle.make} ${booking.vehicle.model}` : 'Unknown',
+    carPlate: booking.vehicle?.licensePlate || 'N/A',
+    carColor: booking.vehicle?.color || 'N/A',
+    carYear: booking.vehicle?.year || 'N/A',
+    startDate: new Date(booking.pickupDate).toLocaleDateString(),
+    endDate: new Date(booking.returnDate).toLocaleDateString(),
+    startTime: new Date(booking.pickupDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+    endTime: new Date(booking.returnDate).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+    pickupLocation: booking.pickupLocation,
+    dropoffLocation: booking.returnLocation,
+    status: booking.status.toLowerCase(),
+    amount: `$${booking.pricing?.total || 0}`,
+    dailyRate: `$${booking.pricing?.baseRate || 0}`,
+    duration: `${booking.pricing?.duration?.days || 0} days`,
+    paymentMethod: booking.paymentMethod || 'N/A',
+    paymentStatus: booking.paymentStatus || 'Pending',
+    bookingDate: new Date(booking.createdAt).toLocaleDateString(),
+    notes: booking.notes || 'No notes',
+    insurance: booking.insurance || 'Basic Coverage',
+    mileageLimit: booking.mileageLimit || 'Standard'
+  });
 
   const getStatusColor = (status) => {
     switch (status) {
@@ -159,10 +147,57 @@ const BookingsPage = () => {
         return 'bg-yellow-100 text-yellow-800';
       case 'completed':
         return 'bg-gray-100 text-gray-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
   };
+
+  const formatStatsForDisplay = () => [
+    { label: 'Total Bookings', value: bookingStats.totalBookings, color: 'blue' },
+    { label: 'Active Rentals', value: bookingStats.activeBookings, color: 'green' },
+    { label: 'Pending', value: bookingStats.pendingBookings, color: 'orange' },
+    { label: 'This Month', value: bookingStats.thisMonthBookings, color: 'purple' }
+  ];
+
+  if (loading && bookings.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-300">Loading bookings...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="text-red-500 mb-4">
+              <X size={48} />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Bookings</h3>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button 
+              onClick={() => {
+                setError(null);
+                fetchBookings();
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -179,7 +214,7 @@ const BookingsPage = () => {
 
       {/* Booking Statistics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {bookingStats.map((stat, index) => (
+        {formatStatsForDisplay().map((stat, index) => (
           <div key={index} className="bg-white rounded-lg border border-gray-200 p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -213,20 +248,57 @@ const BookingsPage = () => {
               type="text" 
               placeholder="Search bookings..." 
               className="border-0 outline-none text-sm"
+              value={filters.search}
+              onChange={(e) => handleSearch(e.target.value)}
             />
           </div>
           <div className="flex items-center space-x-2">
             <Filter className="text-gray-400" size={16} />
-            <select className="border border-gray-300 rounded-md px-3 py-1 text-sm">
-              <option value="all">All Status</option>
-              <option value="active">Active</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="pending">Pending</option>
-              <option value="completed">Completed</option>
+            <select 
+              className="border border-gray-300 rounded-md px-3 py-1 text-sm"
+              value={filters.status}
+              onChange={(e) => handleFilterChange('status', e.target.value)}
+            >
+              <option value="">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Confirmed">Confirmed</option>
+              <option value="Active">Active</option>
+              <option value="Completed">Completed</option>
+              <option value="Cancelled">Cancelled</option>
             </select>
           </div>
-          <select className="border border-gray-300 rounded-md px-3 py-1 text-sm">
-            <option value="all">All Dates</option>
+          <select 
+            className="border border-gray-300 rounded-md px-3 py-1 text-sm"
+            onChange={(e) => {
+              const value = e.target.value;
+              const today = new Date();
+              let startDate = '';
+              let endDate = '';
+              
+              if (value === 'today') {
+                startDate = today.toISOString().split('T')[0];
+                endDate = today.toISOString().split('T')[0];
+              } else if (value === 'week') {
+                const weekStart = new Date(today.setDate(today.getDate() - today.getDay()));
+                const weekEnd = new Date(today.setDate(today.getDate() - today.getDay() + 6));
+                startDate = weekStart.toISOString().split('T')[0];
+                endDate = weekEnd.toISOString().split('T')[0];
+              } else if (value === 'month') {
+                const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                startDate = monthStart.toISOString().split('T')[0];
+                endDate = monthEnd.toISOString().split('T')[0];
+              }
+              
+              setFilters(prev => ({
+                ...prev,
+                startDate,
+                endDate,
+                page: 1
+              }));
+            }}
+          >
+            <option value="">All Dates</option>
             <option value="today">Today</option>
             <option value="week">This Week</option>
             <option value="month">This Month</option>
@@ -250,53 +322,84 @@ const BookingsPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {bookings.map((booking) => (
-                <tr key={booking.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="py-4 px-4">
-                    <span className="font-medium text-gray-900">{booking.id}</span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="flex items-center space-x-2">
-                      <User className="text-gray-400" size={16} />
-                      <span className="text-gray-900">{booking.customer}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div className="flex items-center space-x-2">
-                      <Car className="text-gray-400" size={16} />
-                      <span className="text-gray-900">{booking.car}</span>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4">
-                    <div>
-                      <p className="text-gray-900">{booking.duration}</p>
-                      <p className="text-xs text-gray-500">
-                        {booking.startDate} - {booking.endDate}
-                      </p>
-                    </div>
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className="font-semibold text-gray-900">{booking.amount}</span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(booking.status)}`}>
-                      {booking.status}
-                    </span>
-                  </td>
-                  <td className="py-4 px-4">
-                    <button 
-                      onClick={() => setSelectedBooking(booking)}
-                      className="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
-                      title="View Details"
-                    >
-                      <Eye size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+              {bookings.map((booking) => {
+                const displayBooking = formatBookingForDisplay(booking);
+                return (
+                  <tr key={displayBooking.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="py-4 px-4">
+                      <span className="font-medium text-gray-900">{displayBooking.bookingNumber || displayBooking.id}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        <User className="text-gray-400" size={16} />
+                        <span className="text-gray-900">{displayBooking.customer}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div className="flex items-center space-x-2">
+                        <Car className="text-gray-400" size={16} />
+                        <span className="text-gray-900">{displayBooking.car}</span>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <div>
+                        <p className="text-gray-900">{displayBooking.duration}</p>
+                        <p className="text-xs text-gray-500">
+                          {displayBooking.startDate} - {displayBooking.endDate}
+                        </p>
+                      </div>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className="font-semibold text-gray-900">{displayBooking.amount}</span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(displayBooking.status)}`}>
+                        {displayBooking.status}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4">
+                      <button 
+                        onClick={() => setSelectedBooking(displayBooking)}
+                        className="p-2 text-gray-400 hover:text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                        title="View Details"
+                      >
+                        <Eye size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
+
+        {/* Pagination */}
+        {pagination.totalPages > 1 && (
+          <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+            <div className="text-sm text-gray-500">
+              Showing {((pagination.currentPage - 1) * filters.limit) + 1} to {Math.min(pagination.currentPage * filters.limit, pagination.totalItems)} of {pagination.totalItems} bookings
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => handlePageChange(pagination.currentPage - 1)}
+                disabled={!pagination.hasPrevPage}
+                className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              <span className="text-sm text-gray-700">
+                Page {pagination.currentPage} of {pagination.totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(pagination.currentPage + 1)}
+                disabled={!pagination.hasNextPage}
+                className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Elegant Compact Booking Detail Modal */}
