@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Car, 
   Plus, 
@@ -19,214 +19,266 @@ import {
   Clock,
   Fuel
 } from 'lucide-react';
+import { vehiclesAPI } from '../utils/crmAPI';
 
 const VehicleManagementPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
-  const [locationFilter, setLocationFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [locationFilter, setLocationFilter] = useState('');
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [isAddingVehicle, setIsAddingVehicle] = useState(false);
   const [isEditingVehicle, setIsEditingVehicle] = useState(false);
   const [notification, setNotification] = useState(null);
-
-  const [vehicles, setVehicles] = useState([
-    {
-      id: 1,
-      model: 'Mitsubishi ASX',
-      plate: 'U47449',
-      status: 'available',
-      battery: 85,
-      location: 'Dubai Marina',
-      year: '2022',
-      color: 'Silver',
-      type: 'SUV',
-      dailyRate: 150,
-      mileage: 25000,
-      lastService: '2024-01-15',
-      insurance: '2024-12-31',
-      registration: '2025-06-30',
-      features: ['GPS', 'AC', 'Bluetooth', 'Backup Camera'],
-      fuelType: 'Petrol',
-      transmission: 'Automatic',
-      seats: 5,
-      addedDate: '2023-01-15',
-      totalTrips: 124,
-      totalRevenue: 18600
-    },
-    {
-      id: 2,
-      model: 'Toyota RAV4',
-      plate: 'U47450',
-      status: 'available',
-      battery: 92,
-      location: 'Downtown Dubai',
-      year: '2023',
-      color: 'White',
-      type: 'SUV',
-      dailyRate: 180,
-      mileage: 15000,
-      lastService: '2024-02-01',
-      insurance: '2024-11-30',
-      registration: '2025-05-15',
-      features: ['GPS', 'AC', 'Bluetooth', 'Lane Assist', 'Cruise Control'],
-      fuelType: 'Hybrid',
-      transmission: 'Automatic',
-      seats: 5,
-      addedDate: '2023-03-10',
-      totalTrips: 156,
-      totalRevenue: 28080
-    },
-    {
-      id: 3,
-      model: 'Honda Civic',
-      plate: 'U47451',
-      status: 'rented',
-      battery: 25,
-      location: 'Jumeirah',
-      year: '2021',
-      color: 'Black',
-      type: 'Sedan',
-      dailyRate: 120,
-      mileage: 45000,
-      lastService: '2024-01-20',
-      insurance: '2024-10-31',
-      registration: '2025-04-20',
-      features: ['GPS', 'AC', 'Bluetooth'],
-      fuelType: 'Petrol',
-      transmission: 'Manual',
-      seats: 5,
-      addedDate: '2022-08-05',
-      totalTrips: 203,
-      totalRevenue: 24360
-    },
-    {
-      id: 4,
-      model: 'Tesla Model 3',
-      plate: 'U47452',
-      status: 'available',
-      battery: 78,
-      location: 'Deira',
-      year: '2023',
-      color: 'Blue',
-      type: 'Sedan',
-      dailyRate: 220,
-      mileage: 8000,
-      lastService: '2024-02-10',
-      insurance: '2024-12-15',
-      registration: '2025-07-10',
-      features: ['GPS', 'AC', 'Bluetooth', 'Autopilot', 'Premium Audio'],
-      fuelType: 'Electric',
-      transmission: 'Automatic',
-      seats: 5,
-      addedDate: '2023-05-20',
-      totalTrips: 89,
-      totalRevenue: 19580
-    },
-    {
-      id: 5,
-      model: 'BMW X3',
-      plate: 'U47453',
-      status: 'maintenance',
-      battery: 45,
-      location: 'Bur Dubai',
-      year: '2022',
-      color: 'Gray',
-      type: 'SUV',
-      dailyRate: 200,
-      mileage: 32000,
-      lastService: '2024-02-15',
-      insurance: '2024-11-20',
-      registration: '2025-03-25',
-      features: ['GPS', 'AC', 'Bluetooth', 'Panoramic Roof', 'Heated Seats'],
-      fuelType: 'Petrol',
-      transmission: 'Automatic',
-      seats: 5,
-      addedDate: '2022-12-08',
-      totalTrips: 167,
-      totalRevenue: 33400
-    },
-    {
-      id: 6,
-      model: 'Nissan Leaf',
-      plate: 'U47454',
-      status: 'available',
-      battery: 67,
-      location: 'Al Barsha',
-      year: '2023',
-      color: 'Green',
-      type: 'Hatchback',
-      dailyRate: 160,
-      mileage: 12000,
-      lastService: '2024-01-30',
-      insurance: '2024-12-10',
-      registration: '2025-08-15',
-      features: ['GPS', 'AC', 'Bluetooth', 'Eco Mode'],
-      fuelType: 'Electric',
-      transmission: 'Automatic',
-      seats: 5,
-      addedDate: '2023-04-12',
-      totalTrips: 98,
-      totalRevenue: 15680
-    },
-    {
-      id: 7,
-      model: 'Mercedes C-Class',
-      plate: 'U47455',
-      status: 'rented',
-      battery: 15,
-      location: 'Business Bay',
-      year: '2022',
-      color: 'Red',
-      type: 'Sedan',
-      dailyRate: 250,
-      mileage: 28000,
-      lastService: '2024-02-05',
-      insurance: '2024-12-25',
-      registration: '2025-09-10',
-      features: ['GPS', 'AC', 'Bluetooth', 'Premium Audio', 'Massage Seats'],
-      fuelType: 'Petrol',
-      transmission: 'Automatic',
-      seats: 5,
-      addedDate: '2022-11-15',
-      totalTrips: 142,
-      totalRevenue: 35500
-    },
-    {
-      id: 8,
-      model: 'Audi Q5',
-      plate: 'U47456',
-      status: 'discharged',
-      battery: 9,
-      location: 'JLT',
-      year: '2023',
-      color: 'Black',
-      type: 'SUV',
-      dailyRate: 210,
-      mileage: 18000,
-      lastService: '2024-01-25',
-      insurance: '2024-11-15',
-      registration: '2025-05-30',
-      features: ['GPS', 'AC', 'Bluetooth', 'Quattro AWD', 'Virtual Cockpit'],
-      fuelType: 'Petrol',
-      transmission: 'Automatic',
-      seats: 5,
-      addedDate: '2023-02-28',
-      totalTrips: 76,
-      totalRevenue: 15960
-    }
-  ]);
-
-  // Filter vehicles based on search and filters
-  const filteredVehicles = vehicles.filter(vehicle => {
-    const matchesSearch = vehicle.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         vehicle.plate.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         vehicle.color.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'all' || vehicle.status === statusFilter;
-    const matchesLocation = locationFilter === 'all' || vehicle.location === locationFilter;
-    
-    return matchesSearch && matchesStatus && matchesLocation;
+  
+  // API state
+  const [vehicles, setVehicles] = useState([]);
+  const [vehicleStats, setVehicleStats] = useState({
+    totalVehicles: 0,
+    availableVehicles: 0,
+    rentedVehicles: 0,
+    maintenanceVehicles: 0,
+    totalRevenue: 0
   });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    page: 1,
+    limit: 20,
+    search: '',
+    status: '',
+    location: '',
+    vehicleType: '',
+    fuelType: ''
+  });
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    hasNextPage: false,
+    hasPrevPage: false
+  });
+
+  // Fetch vehicles data
+  const fetchVehicles = async () => {
+    try {
+      setLoading(true);
+      const response = await vehiclesAPI.getVehicles(filters);
+      
+      if (response.success) {
+        setVehicles(response.data.vehicles);
+        setPagination(response.data.pagination);
+      } else {
+        setError(response.message || 'Failed to fetch vehicles');
+      }
+    } catch (error) {
+      console.error('Error fetching vehicles:', error);
+      setError('Failed to fetch vehicles. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch vehicle statistics
+  const fetchVehicleStats = async () => {
+    try {
+      const response = await vehiclesAPI.getVehicleStats();
+      
+      if (response.success) {
+        const { summary } = response.data;
+        setVehicleStats({
+          totalVehicles: summary.totalVehicles,
+          availableVehicles: summary.availableVehicles,
+          rentedVehicles: summary.rentedVehicles,
+          maintenanceVehicles: summary.maintenanceVehicles,
+          totalRevenue: summary.averageDailyRate * summary.totalVehicles * 30 // Estimated monthly revenue
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching vehicle stats:', error);
+    }
+  };
+
+  // Load data on component mount and when filters change
+  useEffect(() => {
+    fetchVehicles();
+  }, [filters]);
+
+  useEffect(() => {
+    fetchVehicleStats();
+  }, []);
+
+  // Update filters when search term changes
+  useEffect(() => {
+    const delayedSearch = setTimeout(() => {
+      setFilters(prev => ({
+        ...prev,
+        search: searchTerm,
+        page: 1
+      }));
+    }, 500);
+
+    return () => clearTimeout(delayedSearch);
+  }, [searchTerm]);
+
+  // Update filters when status filter changes
+  useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      status: statusFilter,
+      page: 1
+    }));
+  }, [statusFilter]);
+
+  // Update filters when location filter changes
+  useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      location: locationFilter,
+      page: 1
+    }));
+  }, [locationFilter]);
+
+  // Format vehicle data for display
+  const formatVehicleForDisplay = (vehicle) => ({
+    id: vehicle._id,
+    vehicleNumber: vehicle.vehicleNumber,
+    model: `${vehicle.make} ${vehicle.model}`,
+    plate: vehicle.licensePlate,
+    status: vehicle.status.toLowerCase(),
+    battery: vehicle.fuelLevel || 85, // Default if not available
+    location: vehicle.location,
+    year: vehicle.year.toString(),
+    color: vehicle.color,
+    type: vehicle.vehicleType,
+    dailyRate: vehicle.dailyRate,
+    mileage: vehicle.mileage || 0,
+    lastService: vehicle.lastService ? new Date(vehicle.lastService).toISOString().split('T')[0] : '',
+    insurance: vehicle.insurance ? new Date(vehicle.insurance).toISOString().split('T')[0] : '',
+    registration: vehicle.registration ? new Date(vehicle.registration).toISOString().split('T')[0] : '',
+    features: vehicle.features || ['GPS', 'AC', 'Bluetooth'],
+    fuelType: vehicle.fuelType,
+    transmission: vehicle.transmission,
+    seats: vehicle.seats || 5,
+    addedDate: new Date(vehicle.createdAt).toISOString().split('T')[0],
+    totalTrips: 0, // Would need to calculate from bookings
+    totalRevenue: 0 // Would need to calculate from bookings
+  });
+
+  // Handle add vehicle
+  const handleAddVehicle = async (vehicleData) => {
+    try {
+      // Transform frontend data to backend format
+      const backendData = {
+        make: vehicleData.model.split(' ')[0] || 'Unknown',
+        model: vehicleData.model.split(' ').slice(1).join(' ') || vehicleData.model,
+        year: Number(vehicleData.year),
+        licensePlate: vehicleData.plate,
+        color: vehicleData.color,
+        vehicleType: vehicleData.type,
+        fuelType: vehicleData.fuelType,
+        transmission: vehicleData.transmission,
+        seats: Number(vehicleData.seats),
+        dailyRate: Number(vehicleData.dailyRate),
+        location: vehicleData.location,
+        status: vehicleData.status,
+        mileage: Number(vehicleData.mileage),
+        fuelLevel: Number(vehicleData.battery),
+        features: vehicleData.features,
+        lastService: vehicleData.lastService ? new Date(vehicleData.lastService) : undefined,
+        insurance: vehicleData.insurance ? new Date(vehicleData.insurance) : undefined,
+        registration: vehicleData.registration ? new Date(vehicleData.registration) : undefined
+      };
+
+      const response = await vehiclesAPI.createVehicle(backendData);
+      
+      if (response.success) {
+        setIsAddingVehicle(false);
+        showNotification(`${vehicleData.model} (${vehicleData.plate}) has been added to the fleet`, 'success');
+        fetchVehicles(); // Refresh the list
+        fetchVehicleStats(); // Refresh stats
+      } else {
+        showNotification(response.message || 'Failed to add vehicle', 'error');
+      }
+    } catch (error) {
+      console.error('Error adding vehicle:', error);
+      showNotification('Failed to add vehicle. Please try again.', 'error');
+    }
+  };
+
+  // Handle edit vehicle
+  const handleEditVehicle = async (vehicleData) => {
+    try {
+      // Transform frontend data to backend format
+      const backendData = {
+        make: vehicleData.model.split(' ')[0] || 'Unknown',
+        model: vehicleData.model.split(' ').slice(1).join(' ') || vehicleData.model,
+        year: Number(vehicleData.year),
+        licensePlate: vehicleData.plate,
+        color: vehicleData.color,
+        vehicleType: vehicleData.type,
+        fuelType: vehicleData.fuelType,
+        transmission: vehicleData.transmission,
+        seats: Number(vehicleData.seats),
+        dailyRate: Number(vehicleData.dailyRate),
+        location: vehicleData.location,
+        status: vehicleData.status,
+        mileage: Number(vehicleData.mileage),
+        fuelLevel: Number(vehicleData.battery),
+        features: vehicleData.features,
+        lastService: vehicleData.lastService ? new Date(vehicleData.lastService) : undefined,
+        insurance: vehicleData.insurance ? new Date(vehicleData.insurance) : undefined,
+        registration: vehicleData.registration ? new Date(vehicleData.registration) : undefined
+      };
+
+      const response = await vehiclesAPI.updateVehicle(vehicleData.id, backendData);
+      
+      if (response.success) {
+        setIsEditingVehicle(false);
+        setSelectedVehicle(null);
+        showNotification(`${vehicleData.model} (${vehicleData.plate}) has been updated`, 'success');
+        fetchVehicles(); // Refresh the list
+        fetchVehicleStats(); // Refresh stats
+      } else {
+        showNotification(response.message || 'Failed to update vehicle', 'error');
+      }
+    } catch (error) {
+      console.error('Error updating vehicle:', error);
+      showNotification('Failed to update vehicle. Please try again.', 'error');
+    }
+  };
+
+  // Handle remove vehicle
+  const handleRemoveVehicle = async (vehicleId) => {
+    try {
+      const vehicle = vehicles.find(v => v._id === vehicleId);
+      const displayVehicle = formatVehicleForDisplay(vehicle);
+      
+      const response = await vehiclesAPI.deleteVehicle(vehicleId);
+      
+      if (response.success) {
+        setSelectedVehicle(null);
+        showNotification(`${displayVehicle.model} (${displayVehicle.plate}) has been removed from the fleet`, 'success');
+        fetchVehicles(); // Refresh the list
+        fetchVehicleStats(); // Refresh stats
+      } else {
+        showNotification(response.message || 'Failed to remove vehicle', 'error');
+      }
+    } catch (error) {
+      console.error('Error removing vehicle:', error);
+      showNotification('Failed to remove vehicle. Please try again.', 'error');
+    }
+  };
+
+  // Handle pagination
+  const handlePageChange = (newPage) => {
+    setFilters(prev => ({
+      ...prev,
+      page: newPage
+    }));
+  };
+
+  // Get unique locations for filter (from current vehicles)
+  const uniqueLocations = [...new Set(vehicles.map(v => v.location))];
 
   // Get status styling
   const getStatusStyle = (status) => {
@@ -237,7 +289,7 @@ const VehicleManagementPage = () => {
         return 'bg-orange-100 text-orange-800';
       case 'maintenance':
         return 'bg-yellow-100 text-yellow-800';
-      case 'discharged':
+      case 'out of service':
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
@@ -253,7 +305,7 @@ const VehicleManagementPage = () => {
         return <Clock size={14} className="text-orange-600" />;
       case 'maintenance':
         return <AlertCircle size={14} className="text-yellow-600" />;
-      case 'discharged':
+      case 'out of service':
         return <Battery size={14} className="text-red-600" />;
       default:
         return <Clock size={14} className="text-gray-600" />;
@@ -266,38 +318,45 @@ const VehicleManagementPage = () => {
     setTimeout(() => setNotification(null), 4000);
   };
 
-  // Handle add vehicle
-  const handleAddVehicle = (vehicleData) => {
-    const newVehicle = {
-      ...vehicleData,
-      id: vehicles.length + 1,
-      addedDate: new Date().toISOString().split('T')[0],
-      totalTrips: 0,
-      totalRevenue: 0
-    };
-    setVehicles([...vehicles, newVehicle]);
-    setIsAddingVehicle(false);
-    showNotification(`${newVehicle.model} (${newVehicle.plate}) has been added to the fleet`, 'success');
-  };
+  // Loading state
+  if (loading && vehicles.length === 0) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600">Loading vehicles...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
-  // Handle edit vehicle
-  const handleEditVehicle = (vehicleData) => {
-    setVehicles(vehicles.map(v => v.id === vehicleData.id ? vehicleData : v));
-    setIsEditingVehicle(false);
-    setSelectedVehicle(null);
-    showNotification(`${vehicleData.model} (${vehicleData.plate}) has been updated`, 'success');
-  };
-
-  // Handle remove vehicle
-  const handleRemoveVehicle = (vehicleId) => {
-    const vehicle = vehicles.find(v => v.id === vehicleId);
-    setVehicles(vehicles.filter(v => v.id !== vehicleId));
-    setSelectedVehicle(null);
-    showNotification(`${vehicle.model} (${vehicle.plate}) has been removed from the fleet`, 'error');
-  };
-
-  // Get unique locations for filter
-  const uniqueLocations = [...new Set(vehicles.map(v => v.location))];
+  // Error state
+  if (error) {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center">
+            <div className="text-red-500 mb-4">
+              <X size={48} />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Vehicles</h3>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button 
+              onClick={() => {
+                setError(null);
+                fetchVehicles();
+              }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -322,7 +381,7 @@ const VehicleManagementPage = () => {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs text-gray-600">Total Vehicles</p>
-              <p className="text-xl font-bold text-gray-900">{vehicles.length}</p>
+              <p className="text-xl font-bold text-gray-900">{vehicleStats.totalVehicles}</p>
             </div>
             <div className="p-2 bg-blue-100 rounded-lg">
               <Car className="text-blue-600" size={20} />
@@ -335,7 +394,7 @@ const VehicleManagementPage = () => {
             <div>
               <p className="text-xs text-gray-600">Available</p>
               <p className="text-xl font-bold text-green-600">
-                {vehicles.filter(v => v.status === 'available').length}
+                {vehicleStats.availableVehicles}
               </p>
             </div>
             <div className="p-2 bg-green-100 rounded-lg">
@@ -349,7 +408,7 @@ const VehicleManagementPage = () => {
             <div>
               <p className="text-xs text-gray-600">Rented</p>
               <p className="text-xl font-bold text-orange-600">
-                {vehicles.filter(v => v.status === 'rented').length}
+                {vehicleStats.rentedVehicles}
               </p>
             </div>
             <div className="p-2 bg-orange-100 rounded-lg">
@@ -361,9 +420,9 @@ const VehicleManagementPage = () => {
         <div className="bg-white rounded-lg border border-gray-200 p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-gray-600">Revenue</p>
+              <p className="text-xs text-gray-600">Est. Revenue</p>
               <p className="text-xl font-bold text-gray-900">
-                ${Math.round(vehicles.reduce((sum, v) => sum + v.totalRevenue, 0) / 1000)}k
+                ${Math.round(vehicleStats.totalRevenue / 1000)}k
               </p>
             </div>
             <div className="p-2 bg-purple-100 rounded-lg">
@@ -396,11 +455,11 @@ const VehicleManagementPage = () => {
               onChange={(e) => setStatusFilter(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             >
-              <option value="all">All Status</option>
-              <option value="available">Available</option>
-              <option value="rented">Rented</option>
-              <option value="maintenance">Maintenance</option>
-              <option value="discharged">Discharged</option>
+              <option value="">All Status</option>
+              <option value="Available">Available</option>
+              <option value="Rented">Rented</option>
+              <option value="Maintenance">Maintenance</option>
+              <option value="Out of Service">Out of Service</option>
             </select>
           </div>
 
@@ -411,7 +470,7 @@ const VehicleManagementPage = () => {
               onChange={(e) => setLocationFilter(e.target.value)}
               className="border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
             >
-              <option value="all">All Locations</option>
+              <option value="">All Locations</option>
               {uniqueLocations.map(location => (
                 <option key={location} value={location}>{location}</option>
               ))}
@@ -436,95 +495,126 @@ const VehicleManagementPage = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {filteredVehicles.map((vehicle) => (
-                <tr key={vehicle.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="py-3 px-3">
-                    <div className="flex items-center space-x-2">
-                      <div className="p-1.5 bg-blue-100 rounded">
-                        <Car className="text-blue-600" size={16} />
+              {vehicles.map((vehicle) => {
+                const displayVehicle = formatVehicleForDisplay(vehicle);
+                return (
+                  <tr key={displayVehicle.id} className="hover:bg-gray-50 transition-colors">
+                    <td className="py-3 px-3">
+                      <div className="flex items-center space-x-2">
+                        <div className="p-1.5 bg-blue-100 rounded">
+                          <Car className="text-blue-600" size={16} />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900 text-sm line-clamp-1">{displayVehicle.model}</p>
+                          <p className="text-xs text-gray-500">{displayVehicle.plate} • {displayVehicle.year}</p>
+                        </div>
                       </div>
+                    </td>
+                    <td className="py-3 px-3">
+                      <div className="flex items-center space-x-1">
+                        {getStatusIcon(displayVehicle.status)}
+                        <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${getStatusStyle(displayVehicle.status)}`}>
+                          {displayVehicle.status}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-3">
+                      <div className="flex items-center space-x-1">
+                        <MapPin size={12} className="text-gray-400" />
+                        <span className="text-xs text-gray-900 line-clamp-1">{displayVehicle.location}</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-3">
+                      <div className="flex items-center space-x-1">
+                        {displayVehicle.fuelType === 'Electric' ? (
+                          <Battery size={12} className={`${
+                            displayVehicle.battery < 12 ? 'text-red-600' :
+                            displayVehicle.battery > 50 ? 'text-green-500' : 
+                            displayVehicle.battery > 25 ? 'text-yellow-500' : 'text-red-500'
+                          }`} />
+                        ) : (
+                          <Fuel size={12} className={`${
+                            displayVehicle.battery < 12 ? 'text-red-600' :
+                            displayVehicle.battery > 50 ? 'text-green-500' : 
+                            displayVehicle.battery > 25 ? 'text-yellow-500' : 'text-red-500'
+                          }`} />
+                        )}
+                        <span className="text-xs text-gray-900">{displayVehicle.battery}%</span>
+                      </div>
+                    </td>
+                    <td className="py-3 px-3">
+                      <span className="text-xs font-medium text-gray-900">${displayVehicle.dailyRate}</span>
+                    </td>
+                    <td className="py-3 px-3">
                       <div>
-                        <p className="font-medium text-gray-900 text-sm line-clamp-1">{vehicle.model}</p>
-                        <p className="text-xs text-gray-500">{vehicle.plate} • {vehicle.year}</p>
+                        <p className="text-xs font-medium text-gray-900">${Math.round(displayVehicle.totalRevenue / 1000)}k</p>
+                        <p className="text-xs text-gray-500">{displayVehicle.totalTrips} trips</p>
                       </div>
-                    </div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <div className="flex items-center space-x-1">
-                      {getStatusIcon(vehicle.status)}
-                      <span className={`px-2 py-0.5 text-xs font-medium rounded-full ${getStatusStyle(vehicle.status)}`}>
-                        {vehicle.status}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <div className="flex items-center space-x-1">
-                      <MapPin size={12} className="text-gray-400" />
-                      <span className="text-xs text-gray-900 line-clamp-1">{vehicle.location}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <div className="flex items-center space-x-1">
-                      {vehicle.fuelType === 'Electric' ? (
-                        <Battery size={12} className={`${
-                          vehicle.battery < 12 ? 'text-red-600' :
-                          vehicle.battery > 50 ? 'text-green-500' : 
-                          vehicle.battery > 25 ? 'text-yellow-500' : 'text-red-500'
-                        }`} />
-                      ) : (
-                        <Fuel size={12} className={`${
-                          vehicle.battery < 12 ? 'text-red-600' :
-                          vehicle.battery > 50 ? 'text-green-500' : 
-                          vehicle.battery > 25 ? 'text-yellow-500' : 'text-red-500'
-                        }`} />
-                      )}
-                      <span className="text-xs text-gray-900">{vehicle.battery}%</span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <span className="text-xs font-medium text-gray-900">${vehicle.dailyRate}</span>
-                  </td>
-                  <td className="py-3 px-3">
-                    <div>
-                      <p className="text-xs font-medium text-gray-900">${Math.round(vehicle.totalRevenue / 1000)}k</p>
-                      <p className="text-xs text-gray-500">{vehicle.totalTrips} trips</p>
-                    </div>
-                  </td>
-                  <td className="py-3 px-3">
-                    <div className="flex items-center space-x-1">
-                      <button
-                        onClick={() => setSelectedVehicle(vehicle)}
-                        className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
-                        title="View"
-                      >
-                        <Eye size={14} />
-                      </button>
-                      <button
-                        onClick={() => {
-                          setSelectedVehicle(vehicle);
-                          setIsEditingVehicle(true);
-                        }}
-                        className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                        title="Edit"
-                      >
-                        <Edit size={14} />
-                      </button>
-                      <button
-                        onClick={() => handleRemoveVehicle(vehicle.id)}
-                        className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors"
-                        title="Remove"
-                      >
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="py-3 px-3">
+                      <div className="flex items-center space-x-1">
+                        <button
+                          onClick={() => setSelectedVehicle(displayVehicle)}
+                          className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                          title="View"
+                        >
+                          <Eye size={14} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedVehicle(displayVehicle);
+                            setIsEditingVehicle(true);
+                          }}
+                          className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                          title="Edit"
+                        >
+                          <Edit size={14} />
+                        </button>
+                        <button
+                          onClick={() => handleRemoveVehicle(displayVehicle.id)}
+                          className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors"
+                          title="Remove"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
 
-        {filteredVehicles.length === 0 && (
+        {/* Pagination */}
+        {pagination.totalPages > 1 && (
+          <div className="px-4 py-3 border-t border-gray-200 flex items-center justify-between">
+            <div className="text-sm text-gray-500">
+              Showing {((pagination.currentPage - 1) * filters.limit) + 1} to {Math.min(pagination.currentPage * filters.limit, pagination.totalItems)} of {pagination.totalItems} vehicles
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => handlePageChange(pagination.currentPage - 1)}
+                disabled={!pagination.hasPrevPage}
+                className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+              <span className="text-sm text-gray-700">
+                Page {pagination.currentPage} of {pagination.totalPages}
+              </span>
+              <button
+                onClick={() => handlePageChange(pagination.currentPage + 1)}
+                disabled={!pagination.hasNextPage}
+                className="px-3 py-1 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        )}
+
+        {vehicles.length === 0 && !loading && (
           <div className="text-center py-8">
             <Car className="mx-auto text-gray-400 mb-3" size={32} />
             <p className="text-gray-500 text-sm">No vehicles found</p>

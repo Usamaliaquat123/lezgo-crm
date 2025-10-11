@@ -93,9 +93,9 @@ export const bookingsAPI = {
   }
 };
 
-// Vehicles API (for reference in bookings)
+// Vehicles API
 export const vehiclesAPI = {
-  // Get all vehicles
+  // Get all vehicles with pagination and filtering
   getVehicles: async (params = {}) => {
     const queryParams = new URLSearchParams();
     
@@ -111,6 +111,41 @@ export const vehiclesAPI = {
     return apiClient.get(url);
   },
 
+  // Get single vehicle by ID
+  getVehicleById: async (id) => {
+    return apiClient.get(`/vehicles/${id}`);
+  },
+
+  // Create new vehicle
+  createVehicle: async (vehicleData) => {
+    return apiClient.post('/vehicles', vehicleData);
+  },
+
+  // Update vehicle
+  updateVehicle: async (id, vehicleData) => {
+    return apiClient.put(`/vehicles/${id}`, vehicleData);
+  },
+
+  // Delete vehicle
+  deleteVehicle: async (id) => {
+    return apiClient.delete(`/vehicles/${id}`);
+  },
+
+  // Get vehicle statistics
+  getVehicleStats: async () => {
+    return apiClient.get('/vehicles/stats');
+  },
+
+  // Search vehicles
+  searchVehicles: async (query, limit = 10) => {
+    return apiClient.get(`/vehicles/search?query=${encodeURIComponent(query)}&limit=${limit}`);
+  },
+
+  // Update vehicle status
+  updateVehicleStatus: async (id, status) => {
+    return apiClient.patch(`/vehicles/${id}/status`, { status });
+  },
+
   // Get available vehicles for booking
   getAvailableVehicles: async (startDate, endDate) => {
     const params = new URLSearchParams({
@@ -123,11 +158,87 @@ export const vehiclesAPI = {
   }
 };
 
+// Parking Proofs API
+export const parkingProofsAPI = {
+  // Get all parking proofs with pagination and filtering
+  getParkingProofs: async (params = {}) => {
+    const queryParams = new URLSearchParams();
+    
+    Object.keys(params).forEach(key => {
+      if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+        queryParams.append(key, params[key]);
+      }
+    });
+    
+    const queryString = queryParams.toString();
+    const url = queryString ? `/parking-proofs?${queryString}` : '/parking-proofs';
+    
+    return apiClient.get(url);
+  },
+
+  // Get single parking proof by ID
+  getParkingProofById: async (id) => {
+    return apiClient.get(`/parking-proofs/${id}`);
+  },
+
+  // Create new parking proof
+  createParkingProof: async (proofData) => {
+    return apiClient.post('/parking-proofs', proofData);
+  },
+
+  // Update parking proof
+  updateParkingProof: async (id, proofData) => {
+    return apiClient.put(`/parking-proofs/${id}`, proofData);
+  },
+
+  // Delete parking proof
+  deleteParkingProof: async (id) => {
+    return apiClient.delete(`/parking-proofs/${id}`);
+  },
+
+  // Get parking proof statistics
+  getParkingProofStats: async () => {
+    return apiClient.get('/parking-proofs/stats');
+  },
+
+  // Search parking proofs
+  searchParkingProofs: async (query, limit = 10) => {
+    return apiClient.get(`/parking-proofs/search?query=${encodeURIComponent(query)}&limit=${limit}`);
+  },
+
+  // Approve parking proof
+  approveParkingProof: async (id, notes = '') => {
+    return apiClient.post(`/parking-proofs/${id}/approve`, { notes });
+  },
+
+  // Reject parking proof
+  rejectParkingProof: async (id, reason, charges = {}) => {
+    return apiClient.post(`/parking-proofs/${id}/reject`, { reason, charges });
+  },
+
+  // Report damage
+  reportDamage: async (id, damageDetails, estimatedCost = 0) => {
+    return apiClient.post(`/parking-proofs/${id}/report-damage`, { 
+      damageDetails, 
+      estimatedCost 
+    });
+  },
+
+  // Mark as needs cleaning
+  markNeedsCleaning: async (id, cleaningFee = 50, notes = 'Vehicle needs cleaning') => {
+    return apiClient.post(`/parking-proofs/${id}/needs-cleaning`, { 
+      cleaningFee, 
+      notes 
+    });
+  }
+};
+
 // Combined CRM API
 export const crmAPI = {
   customers: customersAPI,
   bookings: bookingsAPI,
-  vehicles: vehiclesAPI
+  vehicles: vehiclesAPI,
+  parkingProofs: parkingProofsAPI
 };
 
 export default crmAPI;
