@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Car, Plus, Search, Edit, Trash2, Eye, MapPin, Gauge, Battery, Wrench } from 'lucide-react';
+import { Car, Plus, Search, Edit, Trash2, Eye, MapPin, Gauge, Battery, Wrench, X } from 'lucide-react';
 
 interface Vehicle {
   id: string;
@@ -17,6 +17,7 @@ interface Vehicle {
 const VehicleManagementPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
   const vehicles: Vehicle[] = [
     { id: 'V001', make: 'Toyota', model: 'Camry', year: 2023, licensePlate: 'U47449', status: 'rented', mileage: 15000, dailyRate: 75, location: 'Dubai Marina', fuelLevel: 85 },
@@ -52,6 +53,7 @@ const VehicleManagementPage: React.FC = () => {
           <p className="text-gray-600 dark:text-gray-400">Manage your fleet inventory</p>
         </div>
         <button
+          onClick={() => setIsModalOpen(true)}
           className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center space-x-2"
         >
           <Plus size={16} />
@@ -178,6 +180,295 @@ const VehicleManagementPage: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* Add Vehicle Modal - Elegant & Compact */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-3 animate-fadeIn">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-6xl max-h-[92vh] overflow-hidden border border-gray-200 dark:border-gray-700 animate-slideUp">
+            {/* Modal Header - Compact & Elegant */}
+            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 px-5 py-3 flex items-center justify-between shadow-lg z-10">
+              <div className="flex items-center space-x-2.5">
+                <div className="p-1.5 bg-white/20 rounded-lg backdrop-blur-sm">
+                  <Car className="text-white" size={20} />
+                </div>
+                <h3 className="text-lg font-bold text-white tracking-tight">Add Vehicle</h3>
+              </div>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="text-white/90 hover:text-white hover:bg-white/20 p-1.5 rounded-lg transition-all duration-200 hover:scale-110"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Modal Content - Compact Spacing */}
+            <div className="p-5 space-y-5 overflow-y-auto max-h-[calc(92vh-60px)]">
+              {/* Admin Name - Compact */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-700/50 dark:to-gray-700/30 p-4 rounded-xl border border-blue-100 dark:border-gray-600">
+                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
+                  Admin Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="Saood"
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                />
+              </div>
+
+              {/* Car Details Section - Elegant & Compact */}
+              <div className="bg-gray-50 dark:bg-gray-700/30 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
+                <h4 className="text-base font-bold text-gray-900 dark:text-white mb-3 pb-2 border-b-2 border-blue-500 flex items-center space-x-2">
+                  <span className="w-1 h-5 bg-blue-500 rounded-full"></span>
+                  <span>Car Details</span>
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Brand<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input type="text" placeholder="Brand" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Model<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input type="text" placeholder="Model" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Year<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input type="text" placeholder="Year" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      No Of Passes<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input type="text" placeholder="No Of Passes" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Origin<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <select className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                      <option>Select Country</option>
+                      <option>UAE</option>
+                      <option>Saudi Arabia</option>
+                      <option>Qatar</option>
+                      <option>Kuwait</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      G.V.W (K)<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input type="text" placeholder="G.V.W" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Empty weight(K)
+                    </label>
+                    <input type="text" placeholder="XXXX" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Engine No.
+                    </label>
+                    <input type="text" placeholder="Engine No." className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Chassis No.
+                    </label>
+                    <input type="text" placeholder="Chassis No." className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Place Of Issue
+                    </label>
+                    <input type="text" placeholder="Plate Code" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Plate Code (A-Z)<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input type="text" placeholder="Plate Code" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Plate Number
+                    </label>
+                    <input type="text" placeholder="Plate Code" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Color<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input type="text" placeholder="Color" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Registration Date<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input type="date" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Own By<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <select className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                      <option>Select Car</option>
+                      <option>Individual</option>
+                      <option>Company</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Car Account
+                    </label>
+                    <select className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                      <option>Select Car</option>
+                      <option>Account 1</option>
+                      <option>Account 2</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mulkiya Details Section - Elegant & Compact */}
+              <div className="bg-gray-50 dark:bg-gray-700/30 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
+                <h4 className="text-base font-bold text-gray-900 dark:text-white mb-3 pb-2 border-b-2 border-emerald-500 flex items-center space-x-2">
+                  <span className="w-1 h-5 bg-emerald-500 rounded-full"></span>
+                  <span>Mulkiya Details</span>
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Owner Name
+                    </label>
+                    <input type="text" placeholder="Owner Name" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Owner Nationality<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <select className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                      <option>Select</option>
+                      <option>UAE</option>
+                      <option>Indian</option>
+                      <option>Pakistani</option>
+                      <option>Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Expiry Date
+                    </label>
+                    <input type="date" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Inspection Expiry Date
+                    </label>
+                    <input type="date" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Insurance Expiry Date
+                    </label>
+                    <input type="date" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Salik Tag
+                    </label>
+                    <input type="text" placeholder="Salik Tag" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Policy Number
+                    </label>
+                    <input type="text" placeholder="Policy Number" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      T.C. No.
+                    </label>
+                    <input type="text" placeholder="T.C. Number" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Licensing Authority<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input type="text" placeholder="Licensing Authority" className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Status<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <select className="w-full px-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                      <option>Select</option>
+                      <option>Active</option>
+                      <option>Inactive</option>
+                      <option>Maintenance</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {/* Documents Section - Elegant & Compact */}
+              <div className="bg-gray-50 dark:bg-gray-700/30 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
+                <h4 className="text-base font-bold text-gray-900 dark:text-white mb-3 pb-2 border-b-2 border-purple-500 flex items-center space-x-2">
+                  <span className="w-1 h-5 bg-purple-500 rounded-full"></span>
+                  <span>Documents</span>
+                </h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Mulkiya pdf<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input type="file" accept=".pdf" className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/30 dark:file:text-blue-400" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Insurance pdf<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input type="file" accept=".pdf" className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/30 dark:file:text-blue-400" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Certificate pdf<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input type="file" accept=".pdf" className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/30 dark:file:text-blue-400" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5">
+                      Car Image<span className="text-red-500 ml-0.5">*</span>
+                    </label>
+                    <input type="file" accept="image/*" className="w-full px-2 py-1.5 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/30 dark:file:text-blue-400" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Footer - Compact & Elegant */}
+              <div className="flex items-center justify-end space-x-2 pt-3 border-t-2 border-gray-200 dark:border-gray-700 sticky bottom-0 bg-white dark:bg-gray-800 pb-2 -mx-5 px-5">
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-5 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-all duration-200 hover:shadow-md"
+                >
+                  Cancel
+                </button>
+                <button
+                  className="px-5 py-2 text-sm font-bold text-white bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 hover:shadow-lg hover:scale-105 flex items-center space-x-2"
+                >
+                  <span>💾</span>
+                  <span>Save Vehicle</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

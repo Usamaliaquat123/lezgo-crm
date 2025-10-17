@@ -119,3 +119,4 @@ export const resetConfig = (): void => {
   currentConfig = { ...defaultConfig };
 };
 
+
