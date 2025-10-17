@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Car, Plus, Search, Edit, Trash2, Eye, MapPin, Gauge, Battery, Wrench, X } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 interface Vehicle {
   id: string;
@@ -15,9 +16,22 @@ interface Vehicle {
 }
 
 const VehicleManagementPage: React.FC = () => {
+  const { user } = useAuth();
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [selectedAdmin, setSelectedAdmin] = useState<string>('');
+
+  // Check if current user is admin
+  const isAdmin = user?.role === 'Super Admin';
+
+  // Mock admin users list - replace with actual API call
+  const adminUsers = [
+    { id: '1', name: 'Saood', role: 'admin' },
+    { id: '2', name: 'Ahmed', role: 'admin' },
+    { id: '3', name: 'Mohammed', role: 'admin' },
+    { id: '4', name: 'Ali', role: 'manager' },
+  ];
 
   const vehicles: Vehicle[] = [
     { id: 'V001', make: 'Toyota', model: 'Camry', year: 2023, licensePlate: 'U47449', status: 'rented', mileage: 15000, dailyRate: 75, location: 'Dubai Marina', fuelLevel: 85 },
@@ -183,7 +197,7 @@ const VehicleManagementPage: React.FC = () => {
 
       {/* Add Vehicle Modal - Elegant & Compact */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-3 animate-fadeIn">
+        <div className="fixed inset-0  backdrop-blur-md z-50 flex items-center justify-center p-3 animate-fadeIn">
           <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-6xl max-h-[92vh] overflow-hidden border border-gray-200 dark:border-gray-700 animate-slideUp">
             {/* Modal Header - Compact & Elegant */}
             <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-blue-700 dark:from-blue-700 dark:to-blue-800 px-5 py-3 flex items-center justify-between shadow-lg z-10">
@@ -203,16 +217,37 @@ const VehicleManagementPage: React.FC = () => {
 
             {/* Modal Content - Compact Spacing */}
             <div className="p-5 space-y-5 overflow-y-auto max-h-[calc(92vh-60px)]">
-              {/* Admin Name - Compact */}
-              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-700/50 dark:to-gray-700/30 p-4 rounded-xl border border-blue-100 dark:border-gray-600">
-                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide">
-                  Admin Name
+              {/* Admin Name - Role-Based Selector */}
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-gray-700/50 dark:to-gray-700/30 p-4 rounded-xl border border-blue-100 dark:border-gray-600 relative">
+                <label className="block text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1.5 uppercase tracking-wide flex items-center justify-between">
+                  <span>Admin Name</span>
+                  {!isAdmin && (
+                    <span className="text-[10px] px-2 py-0.5 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full font-medium">
+                      View Only
+                    </span>
+                  )}
                 </label>
-                <input
-                  type="text"
-                  placeholder="Saood"
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                />
+                <select
+                  value={selectedAdmin}
+                  onChange={(e) => setSelectedAdmin(e.target.value)}
+                  disabled={!isAdmin}
+                  className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all ${
+                    !isAdmin ? 'opacity-60 cursor-not-allowed bg-gray-100 dark:bg-gray-700/50' : 'cursor-pointer'
+                  }`}
+                >
+                  <option value="">Select Admin</option>
+                  {adminUsers.map((admin) => (
+                    <option key={admin.id} value={admin.id}>
+                      {admin.name} {admin.role === 'manager' ? '(Manager)' : admin.role === 'admin' ? '(Admin)' : ''}
+                    </option>
+                  ))}
+                </select>
+                {!isAdmin && (
+                  <p className="mt-1.5 text-[10px] text-gray-500 dark:text-gray-400 flex items-center space-x-1">
+                    <span>🔒</span>
+                    <span>Only admin users can change this field</span>
+                  </p>
+                )}
               </div>
 
               {/* Car Details Section - Elegant & Compact */}

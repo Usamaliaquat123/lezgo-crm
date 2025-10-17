@@ -504,8 +504,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     clearError,
 
     // Helper functions
-    isAdmin: () => state.user?.role === 'admin',
-    isManager: () => state.user?.role === 'admin' || state.user?.role === 'manager',
+    isAdmin: () => state.user?.role === 'Super Admin',
+    isManager: () => state.user?.role === 'Super Admin' || state.user?.role === 'manager',
     hasRole: (role: string) => state.user?.role === role,
     hasAnyRole: (roles: string[]) => (state.user?.role ? roles.includes(state.user.role) : false),
   };
@@ -565,5 +565,6 @@ export const withAuth = (Component: React.ComponentType<any>, requiredRoles: str
 };
 
 export default AuthContext;
+
 
 

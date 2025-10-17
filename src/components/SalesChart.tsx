@@ -115,3 +115,4 @@ const SalesChart: React.FC<SalesChartProps> = ({ data, type = 'line', title, dat
 export default SalesChart;
 
 
+

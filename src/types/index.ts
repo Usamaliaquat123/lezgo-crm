@@ -7,7 +7,7 @@
 export interface User {
   id: string;
   email: string;
-  role: 'admin' | 'manager' | 'staff' | 'user';
+  role: 'Super Admin' | 'manager' | 'staff' | 'user';
   profile?: UserProfile;
   createdAt?: string;
   updatedAt?: string;
@@ -416,5 +416,6 @@ export interface AppError {
 export type {
   // Add any additional exports here
 };
+
 
 
