@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Car, Plus, Search, Edit, Trash2, Eye, MapPin, Gauge, Battery, X } from 'lucide-react';
+import { Car, Plus, Search, Edit, Trash2, Eye, MapPin, Gauge, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { vehiclesAPI } from '../utils/crmAPI';
 
@@ -307,79 +307,143 @@ const VehicleManagementPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Loading State */}
-      {loading && vehicles.length === 0 && (
-        <div className="flex items-center justify-center h-64">
-          <div className="text-gray-500 dark:text-gray-400">Loading vehicles...</div>
-        </div>
-      )}
-
-      {/* Vehicles Grid */}
-      {!loading || vehicles.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredVehicles.map((vehicle) => (
-            <div key={vehicle.id} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="h-48 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center relative">
-                <Car size={64} className="text-white opacity-50" />
-                <div className="absolute top-3 right-3">
-                  <span className={`px-3 py-1 text-xs font-semibold rounded-full ${getStatusColor(vehicle.status)}`}>
-                    {vehicle.status.charAt(0).toUpperCase() + vehicle.status.slice(1)}
-                  </span>
-                </div>
-              </div>
-              <div className="p-5">
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                  {vehicle.year} {vehicle.make} {vehicle.model}
-                </h3>
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <Car size={16} className="mr-2" />
-                    <span>{vehicle.licensePlate}</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <MapPin size={16} className="mr-2" />
-                    <span>{vehicle.location}</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                    <Gauge size={16} className="mr-2" />
-                    <span>{(vehicle.mileage || 0).toLocaleString()} km</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
-                      <Battery size={16} className="mr-2" />
-                      <div className="flex-1">
-                        <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+      {/* Vehicles Table */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        {loading && vehicles.length === 0 ? (
+          <div className="flex items-center justify-center h-64">
+            <div className="text-gray-500 dark:text-gray-400">Loading vehicles...</div>
+          </div>
+        ) : filteredVehicles.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-64">
+            <Car size={48} className="text-gray-400 mb-4" />
+            <p className="text-gray-500 dark:text-gray-400 text-lg font-medium">No vehicles found</p>
+            <p className="text-gray-400 dark:text-gray-500 text-sm">Try adjusting your search or filters</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                    Vehicle
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                    License Plate
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                    Location
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                    Mileage
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                    Fuel Level
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                    Daily Rate
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                {filteredVehicles.map((vehicle) => (
+                  <tr key={vehicle.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="flex-shrink-0 h-10 w-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                          <Car size={20} className="text-white" />
+                        </div>
+                        <div className="ml-4">
+                          <div className="text-sm font-bold text-gray-900 dark:text-white">
+                            {vehicle.year} {vehicle.make} {vehicle.model}
+                          </div>
+                          <div className="text-xs text-gray-500 dark:text-gray-400">
+                            {vehicle.vehicleNumber || vehicle.id}
+                          </div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center text-sm text-gray-900 dark:text-white">
+                        <div className="px-2 py-1 bg-gray-100 dark:bg-gray-700 rounded font-mono font-semibold">
+                          {vehicle.licensePlate}
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                        <MapPin size={14} className="mr-1.5 text-gray-400" />
+                        {vehicle.location}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center text-sm text-gray-600 dark:text-gray-400">
+                        <Gauge size={14} className="mr-1.5 text-gray-400" />
+                        {(vehicle.mileage || 0).toLocaleString()} km
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="flex items-center">
+                        <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-2 mr-2">
                           <div
-                            className={`h-2 rounded-full transition-all ${vehicle.fuelLevel > 50 ? 'bg-green-500' : vehicle.fuelLevel > 20 ? 'bg-yellow-500' : 'bg-red-500'}`}
+                            className={`h-2 rounded-full transition-all ${
+                              vehicle.fuelLevel > 50 
+                                ? 'bg-green-500' 
+                                : vehicle.fuelLevel > 20 
+                                ? 'bg-yellow-500' 
+                                : 'bg-red-500'
+                            }`}
                             style={{ width: `${vehicle.fuelLevel}%` }}
                           ></div>
                         </div>
+                        <span className="text-xs font-medium text-gray-600 dark:text-gray-400">
+                          {vehicle.fuelLevel}%
+                        </span>
                       </div>
-                    </div>
-                    <span className="text-xs text-gray-500 dark:text-gray-400 ml-2">{vehicle.fuelLevel}%</span>
-                  </div>
-                </div>
-                <div className="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
-                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
-                    ${vehicle.dailyRate || 0}<span className="text-sm text-gray-500 dark:text-gray-400">/day</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <button className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                      <Eye size={18} />
-                    </button>
-                    <button className="p-2 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                      <Edit size={18} />
-                    </button>
-                    <button className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-gray-700 rounded-lg transition-colors">
-                      <Trash2 size={18} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : null}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <div className="text-sm font-bold text-blue-600 dark:text-blue-400">
+                        AED {vehicle.dailyRate || 0}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">per day</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-1 text-xs font-semibold rounded-full ${getStatusColor(vehicle.status)}`}>
+                        {vehicle.status.charAt(0).toUpperCase() + vehicle.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm space-x-2">
+                      <button 
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+                        title="View Details"
+                      >
+                        <Eye size={18} />
+                      </button>
+                      <button 
+                        className="text-gray-600 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                        title="Edit Vehicle"
+                      >
+                        <Edit size={18} />
+                      </button>
+                      <button 
+                        className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 transition-colors"
+                        title="Delete Vehicle"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {/* Add Vehicle Modal */}
       {isModalOpen && (
