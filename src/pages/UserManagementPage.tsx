@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Edit, Trash2, Eye, Mail, Shield, CheckCircle, XCircle, X, User, Lock } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, Eye, Mail, Shield, CheckCircle, XCircle, X, User as UserIcon, Lock } from 'lucide-react';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
 
@@ -487,7 +487,7 @@ const UserManagementPage: React.FC = () => {
             {/* Modal Header */}
             <div className="relative bg-gradient-to-r from-blue-600 to-purple-600 px-6 py-4">
               <h3 className="text-xl font-bold text-white flex items-center">
-                <User size={22} className="mr-2" />
+                <UserIcon size={22} className="mr-2" />
                 Add New User
               </h3>
               <button
@@ -507,7 +507,7 @@ const UserManagementPage: React.FC = () => {
                     Full Name
                   </label>
                   <div className="relative">
-                    <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <UserIcon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                       type="text"
                       value={newUser.name}
@@ -761,7 +761,7 @@ const UserManagementPage: React.FC = () => {
                     Full Name
                   </label>
                   <div className="relative">
-                    <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <UserIcon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
                       type="text"
                       value={editUser.name}
