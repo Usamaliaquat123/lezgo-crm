@@ -30,6 +30,7 @@ interface SidebarProps {
   setIsMobileOpen: (open: boolean) => void;
   pendingProofsCount?: number;
   onLogout: () => void;
+  userRole?: string;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({
@@ -39,6 +40,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   setIsMobileOpen,
   pendingProofsCount = 0,
   onLogout,
+  userRole,
 }) => {
   const menuItems: MenuItem[] = [
     {
@@ -131,6 +133,19 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   };
 
+  // Filter menu items based on user role
+  const agentAllowedMenuIds = [
+    'customers',
+    'car-controls',
+    'parking-proofs',
+    'bookings',
+    'vehicle-management',
+  ];
+
+  const filteredMenuItems = userRole === 'Agent'
+    ? menuItems.filter((item) => agentAllowedMenuIds.includes(item.id))
+    : menuItems;
+
   return (
     <>
       {/* Mobile Overlay */}
@@ -168,7 +183,7 @@ const Sidebar: React.FC<SidebarProps> = ({
         {/* Navigation */}
         <nav className="flex-1 overflow-y-auto py-4 px-2">
           <div className="space-y-1">
-            {menuItems.map((item) => (
+            {filteredMenuItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => handleMenuClick(item.id)}
@@ -229,6 +244,11 @@ const Sidebar: React.FC<SidebarProps> = ({
 };
 
 export default Sidebar;
+
+
+
+
+
 
 
 
