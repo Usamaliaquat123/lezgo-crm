@@ -206,6 +206,7 @@ const AppContent: React.FC = () => {
         setIsMobileOpen={setIsMobileOpen}
         pendingProofsCount={data?.pendingProofsCount || 0}
         onLogout={handleLogout}
+        userRole={user?.role}
       />
 
       {/* Main Content */}

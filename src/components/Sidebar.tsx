@@ -42,6 +42,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   onLogout,
   userRole,
 }) => {
+  console.log(userRole);
   const menuItems: MenuItem[] = [
     {
       id: 'dashboard',
